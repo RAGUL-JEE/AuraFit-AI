@@ -15,6 +15,12 @@ export interface UserProfile {
   bio: string;
   joinedDate: string;
   avatarUrl: string;
+  cameraEnabled: boolean;
+  audioFeedback: boolean;
+  darkMode: boolean;
+  notifications: boolean;
+  dataSync: boolean;
+  aiSensitivity: string;
   stats: {
     caloriesBurned: number;
     workoutsDone: number;
@@ -37,6 +43,12 @@ const defaultProfile: UserProfile = {
   bio: 'Dedicated athlete focusing on strength conditioning and explosive power. Training for regional decathlon qualifiers. Leveraging AI biomechanical analysis to perfect my snatch and clean & jerk forms. Always striving for 1% daily improvement.',
   joinedDate: 'Jan 2024',
   avatarUrl: 'https://lh3.googleusercontent.com/a/default-user',
+  cameraEnabled: true,
+  audioFeedback: true,
+  darkMode: false,
+  notifications: true,
+  dataSync: true,
+  aiSensitivity: 'High',
   stats: {
     caloriesBurned: 12480,
     workoutsDone: 42,
@@ -62,6 +74,12 @@ export function mapSupabaseToProfile(dbProfile: any, email: string): Partial<Use
     bio: dbProfile.bio || '',
     joinedDate: dbProfile.joined_date || new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
     avatarUrl: dbProfile.avatar_url || 'https://lh3.googleusercontent.com/a/default-user',
+    cameraEnabled: dbProfile.camera_enabled !== false,
+    audioFeedback: dbProfile.audio_feedback !== false,
+    darkMode: dbProfile.dark_mode === true,
+    notifications: dbProfile.notifications !== false,
+    dataSync: dbProfile.data_sync !== false,
+    aiSensitivity: dbProfile.ai_sensitivity || 'High',
   };
 }
 
@@ -106,6 +124,12 @@ export function useUserProfile() {
           bio: newProfile.bio,
           avatar_url: newProfile.avatarUrl,
           joined_date: newProfile.joinedDate,
+          camera_enabled: newProfile.cameraEnabled,
+          audio_feedback: newProfile.audioFeedback,
+          dark_mode: newProfile.darkMode,
+          notifications: newProfile.notifications,
+          data_sync: newProfile.dataSync,
+          ai_sensitivity: newProfile.aiSensitivity,
           updated_at: new Date().toISOString()
         };
 

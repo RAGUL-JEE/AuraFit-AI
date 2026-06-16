@@ -26,14 +26,8 @@ function EmojiStyleIcon({
 }
 
 export function Settings({ onNavigate }: { onNavigate?: (tab: Tab | 'active-workout') => void }) {
-  const { profile } = useUserProfile();
+  const { profile, updateProfile } = useUserProfile();
   const { totalWorkouts } = useWorkoutHistory();
-  const [cameraEnabled, setCameraEnabled] = useState(true);
-  const [audioFeedback, setAudioFeedback] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [notifications, setNotifications] = useState(true);
-  const [dataSync, setDataSync] = useState(true);
-  const [aiSensitivity, setAiSensitivity] = useState('High');
 
   const containerClass = "theme-card p-6 flex flex-col gap-6";
 
@@ -95,7 +89,7 @@ export function Settings({ onNavigate }: { onNavigate?: (tab: Tab | 'active-work
               <p className="text-sm text-on-surface-variant">Allow the app to use your computer's camera for form tracking.</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" checked={cameraEnabled} onChange={() => setCameraEnabled(!cameraEnabled)} />
+              <input type="checkbox" className="sr-only peer" checked={profile.cameraEnabled} onChange={() => updateProfile({ cameraEnabled: !profile.cameraEnabled })} />
               <div className="w-11 h-6 bg-outline rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-outline after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>
@@ -109,8 +103,8 @@ export function Settings({ onNavigate }: { onNavigate?: (tab: Tab | 'active-work
               {['Low', 'Medium', 'High'].map((level) => (
                 <button 
                   key={level}
-                  onClick={() => setAiSensitivity(level)}
-                  className={`px-4 py-1.5 text-sm font-bold rounded-md transition-colors cursor-pointer ${aiSensitivity === level ? 'bg-primary text-surface dark:text-slate-900 shadow-sm' : 'text-on-surface-variant hover:text-primary'}`}
+                  onClick={() => updateProfile({ aiSensitivity: level })}
+                  className={`px-4 py-1.5 text-sm font-bold rounded-md transition-colors cursor-pointer ${profile.aiSensitivity === level ? 'bg-primary text-surface dark:text-slate-900 shadow-sm' : 'text-on-surface-variant hover:text-primary'}`}
                 >
                   {level}
                 </button>
@@ -135,7 +129,7 @@ export function Settings({ onNavigate }: { onNavigate?: (tab: Tab | 'active-work
               <p className="text-sm text-on-surface-variant">Voice cues, count reps, and form correction announcements.</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" checked={audioFeedback} onChange={() => setAudioFeedback(!audioFeedback)} />
+              <input type="checkbox" className="sr-only peer" checked={profile.audioFeedback} onChange={() => updateProfile({ audioFeedback: !profile.audioFeedback })} />
               <div className="w-11 h-6 bg-outline rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-outline after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>
@@ -157,7 +151,7 @@ export function Settings({ onNavigate }: { onNavigate?: (tab: Tab | 'active-work
               <p className="text-sm text-on-surface-variant">Switch application interface to darker tones.</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+              <input type="checkbox" className="sr-only peer" checked={profile.darkMode} onChange={() => updateProfile({ darkMode: !profile.darkMode })} />
               <div className="w-11 h-6 bg-outline rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-outline after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>
@@ -168,7 +162,7 @@ export function Settings({ onNavigate }: { onNavigate?: (tab: Tab | 'active-work
               <p className="text-sm text-on-surface-variant">Receive reminders for scheduled workouts and milestones.</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" checked={notifications} onChange={() => setNotifications(!notifications)} />
+              <input type="checkbox" className="sr-only peer" checked={profile.notifications} onChange={() => updateProfile({ notifications: !profile.notifications })} />
               <div className="w-11 h-6 bg-outline rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-outline after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>
@@ -190,7 +184,7 @@ export function Settings({ onNavigate }: { onNavigate?: (tab: Tab | 'active-work
               <p className="text-sm text-on-surface-variant">Sync workout history across devices securely.</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" checked={dataSync} onChange={() => setDataSync(!dataSync)} />
+              <input type="checkbox" className="sr-only peer" checked={profile.dataSync} onChange={() => updateProfile({ dataSync: !profile.dataSync })} />
               <div className="w-11 h-6 bg-outline rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface after:border-outline after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
             </label>
           </div>

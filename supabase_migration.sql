@@ -22,6 +22,12 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   bio         TEXT DEFAULT '',
   avatar_url  TEXT DEFAULT '',
   joined_date TEXT DEFAULT '',
+  camera_enabled BOOLEAN DEFAULT true,
+  audio_feedback BOOLEAN DEFAULT true,
+  dark_mode BOOLEAN DEFAULT false,
+  notifications BOOLEAN DEFAULT true,
+  data_sync BOOLEAN DEFAULT true,
+  ai_sensitivity TEXT DEFAULT 'High',
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -57,6 +63,24 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='joined_date') THEN
     ALTER TABLE public.profiles ADD COLUMN joined_date TEXT DEFAULT '';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='camera_enabled') THEN
+    ALTER TABLE public.profiles ADD COLUMN camera_enabled BOOLEAN DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='audio_feedback') THEN
+    ALTER TABLE public.profiles ADD COLUMN audio_feedback BOOLEAN DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='dark_mode') THEN
+    ALTER TABLE public.profiles ADD COLUMN dark_mode BOOLEAN DEFAULT false;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='notifications') THEN
+    ALTER TABLE public.profiles ADD COLUMN notifications BOOLEAN DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='data_sync') THEN
+    ALTER TABLE public.profiles ADD COLUMN data_sync BOOLEAN DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='ai_sensitivity') THEN
+    ALTER TABLE public.profiles ADD COLUMN ai_sensitivity TEXT DEFAULT 'High';
   END IF;
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='updated_at') THEN
     ALTER TABLE public.profiles ADD COLUMN updated_at TIMESTAMPTZ DEFAULT NOW();

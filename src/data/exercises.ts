@@ -5,7 +5,7 @@ export const EXERCISES: ExerciseData[] = [
     id: 'ex-01', 
     title: 'Push-Up', 
     muscle: 'Chest & Triceps', 
-    image: '/images/workouts/push_up.png',
+    image: '/images/workouts/push_up_cyber.png',
     steps: [
       { title: 'Hand Placement', desc: 'Place your hands slightly wider than shoulder-width.' },
       { title: 'Body Alignment', desc: 'Keep your body in a straight line from head to heels.' },
@@ -26,7 +26,7 @@ export const EXERCISES: ExerciseData[] = [
     id: 'ex-02', 
     title: 'Squat', 
     muscle: 'Quadriceps & Glutes', 
-    image: '/images/workouts/squat.png',
+    image: '/images/workouts/squat_cyber.png',
     steps: [
       { title: 'Stance Setup', desc: 'Stand with feet shoulder-width apart.' },
       { title: 'Core Activation', desc: 'Brace your core.' },
@@ -47,7 +47,7 @@ export const EXERCISES: ExerciseData[] = [
     id: 'ex-03', 
     title: 'Lunge', 
     muscle: 'Quadriceps & Hamstrings', 
-    image: '/images/workouts/lunge.png',
+    image: '/images/workouts/lunge_cyber.png',
     steps: [
       { title: 'Starting Posture', desc: 'Stand tall with feet together.' },
       { title: 'Step Forward', desc: 'Step one leg forward.' },
@@ -71,7 +71,7 @@ export const EXERCISES: ExerciseData[] = [
     id: 'ex-04', 
     title: 'Plank', 
     muscle: 'Core', 
-    image: '/images/workouts/plank.png',
+    image: '/images/workouts/plank_cyber.png',
     steps: [
       { title: 'Forearm Setup', desc: 'Place forearms on the floor.' },
       { title: 'Elbow Alignment', desc: 'Keep elbows below shoulders.' },
@@ -95,7 +95,7 @@ export const EXERCISES: ExerciseData[] = [
     id: 'ex-05', 
     title: 'Bicep Curl', 
     muscle: 'Biceps', 
-    image: '/images/workouts/bicep_curl.png',
+    image: '/images/workouts/bicep_curl_cyber.png',
     steps: [
       { title: 'Grip & Stance', desc: 'Hold dumbbells at your sides.' },
       { title: 'Pin Elbows', desc: 'Keep elbows close to body.' },
@@ -119,7 +119,7 @@ export const EXERCISES: ExerciseData[] = [
     id: 'ex-06', 
     title: 'Shoulder Press', 
     muscle: 'Shoulders', 
-    image: '/images/workouts/shoulder_press.png',
+    image: '/images/workouts/shoulder_press_cyber.png',
     steps: [
       { title: 'Height Setup', desc: 'Holding dumbbells at shoulder height with elbows bent and aligned below wrists.' },
       { title: 'Core Bracing', desc: 'Maintaining tight core engagement while holding dumbbells at shoulder level.' },
@@ -143,7 +143,7 @@ export const EXERCISES: ExerciseData[] = [
     id: 'ex-07', 
     title: 'Bench Press', 
     muscle: 'Chest', 
-    image: '/images/workouts/bench_press.png',
+    image: '/images/workouts/bench_press_cyber.png',
     steps: [
       { title: 'Bench Setup', desc: 'Lie flat on the bench.' },
       { title: 'Grip Width', desc: 'Grip bar slightly wider than shoulders.' },
@@ -167,7 +167,7 @@ export const EXERCISES: ExerciseData[] = [
     id: 'ex-08', 
     title: 'Lat Pulldown', 
     muscle: 'Lats & Back', 
-    image: '/images/workouts/lat_pulldown.png',
+    image: '/images/workouts/lat_pulldown_cyber.png',
     steps: [
       { title: 'Thigh Pad Setup', desc: 'Sit and secure thighs under pads.' },
       { title: 'Overhead Grip', desc: 'Grip bar wider than shoulders.' },
@@ -191,7 +191,7 @@ export const EXERCISES: ExerciseData[] = [
     id: 'ex-09', 
     title: 'Deadlift', 
     muscle: 'Posterior Chain', 
-    image: '/images/workouts/deadlift.png',
+    image: '/images/workouts/deadlift_cyber.png',
     steps: [
       { title: 'Stance Width', desc: 'Stand with feet hip-width apart.' },
       { title: 'Shin Distance', desc: 'Position bar close to shins.' },
@@ -215,7 +215,7 @@ export const EXERCISES: ExerciseData[] = [
     id: 'ex-10', 
     title: 'Mountain Climber', 
     muscle: 'Core & Cardio', 
-    image: '/images/workouts/mountain_climber.png',
+    image: '/images/workouts/mountain_climber_cyber.png',
     steps: [
       { title: 'High Plank', desc: 'Start in high plank position.' },
       { title: 'Hand Alignment', desc: 'Keep hands under shoulders.' },
