@@ -28,7 +28,7 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
     await signInBtn.click();
     
     // Wait for Dashboard (Home) to load
-    await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Welcome back')]")), 10000);
+    await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Smart Fitness')]")), 10000);
 
     // 2. Navigate to AI Detection (Active Workout)
     const aiDetectionLink = await driver.wait(until.elementLocated(By.xpath("//button[.//span[contains(text(), 'AI Detection')]]")), 5000);
@@ -282,7 +282,7 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
     it('35. Verify Home navigation link works and returns to Home', async () => {
       const homeLink = await driver.findElement(By.xpath("//button[.//span[text()='Home']]"));
       await driver.executeScript("arguments[0].click();", homeLink);
-      const welcome = await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Welcome back')]")), 3000);
+      const welcome = await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Smart Fitness')]")), 3000);
       expect(await welcome.isDisplayed()).toBe(true);
     });
   });
