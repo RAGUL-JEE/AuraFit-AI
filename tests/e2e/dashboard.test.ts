@@ -19,8 +19,8 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
     await driver.get('http://localhost:3000');
     
     // 1. Bypass Login Screen
-    // Wait for email input
-    const emailInput = await driver.wait(until.elementLocated(By.name('email')), 10000);
+    // Wait for email input (Vite might take a while to compile on the first request in CI)
+    const emailInput = await driver.wait(until.elementLocated(By.name('email')), 30000);
     await emailInput.sendKeys('testuser@gym.ai');
     
     // Click Sign In button
@@ -28,7 +28,7 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
     await signInBtn.click();
     
     // Wait for Dashboard (Home) to load
-    await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Smart Fitness')]")), 10000);
+    await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Smart Fitness')]")), 20000);
 
     // 2. Navigate to AI Detection (Active Workout)
     const aiDetectionLink = await driver.wait(until.elementLocated(By.xpath("//button[.//span[contains(text(), 'AI Detection')]]")), 5000);
