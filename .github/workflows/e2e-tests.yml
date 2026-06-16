@@ -23,6 +23,9 @@ jobs:
       with:
         python-version: '3.10'
 
+    - name: Install System Dependencies
+      run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-glx
+
     - name: Install Node dependencies
       run: npm install
 
@@ -40,7 +43,7 @@ jobs:
         npm run dev &
         
     - name: Wait for Frontend server
-      run: npx wait-on http://localhost:3000 -t 30000
+      run: npx wait-on tcp:3000 -t 90000
 
     - name: Run E2E Tests
       run: npm run test:e2e
