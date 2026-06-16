@@ -40,7 +40,7 @@ jobs:
     - name: Start Full Stack Application
       run: |
         # Start all servers in background
-        npm run dev &
+        npm run dev:frontend &
         
     - name: Wait for Frontend server
       run: npx wait-on tcp:3000 -t 90000
