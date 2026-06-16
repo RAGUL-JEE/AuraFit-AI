@@ -126,6 +126,7 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
       const workoutsBtn = await driver.findElement(By.xpath("//button[.//span[text()='Workouts']]"));
       await driver.executeScript("arguments[0].click();", workoutsBtn);
       const workoutsTitle = await driver.wait(until.elementLocated(By.xpath("//h2[contains(., 'Workouts')]")), 3000);
+      await driver.wait(until.elementIsVisible(workoutsTitle), 3000);
       expect(await workoutsTitle.isDisplayed()).toBe(true);
     });
 
