@@ -182,7 +182,7 @@ export default function App() {
       canGoBack={history.length > 1}
       onLogout={handleLogout}
       hideSidebarAndTopbar={false}
-      title={currentTab === 'active-workout' ? (activeExercise?.title || 'Bench Press') : undefined}
+      title={(currentTab === 'active-workout' || currentTab === 'ai-detection') ? (activeExercise?.title || 'Bench Press') : undefined}
     >
       <div className="h-full flex flex-col">
         {renderContent()}

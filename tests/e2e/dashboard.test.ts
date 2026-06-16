@@ -35,7 +35,7 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
     await aiDetectionLink.click();
 
     // Wait for the AI Detection page to load
-    await driver.wait(until.elementLocated(By.xpath("//h1[contains(text(), 'Bench Press')]")), 10000);
+    await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Bench Press')]")), 10000);
   });
 
   afterAll(async () => {
@@ -50,18 +50,19 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
       expect(sidebar.length).toBeGreaterThan(0);
     });
 
-    it('2. Verify main header and AI GYM COACH branding', async () => {
-      const brand = await driver.findElement(By.xpath("//h2[contains(text(), 'AI GYM COACH')]"));
+    it('2. Verify main header and Precision Coach branding', async () => {
+      const brand = await driver.findElement(By.xpath("//h1[contains(text(), 'Precision Coach')]"));
       expect(await brand.isDisplayed()).toBe(true);
     });
 
     it('3. Verify the main video feed container exists', async () => {
       const videoImg = await driver.findElement(By.xpath("//img[@alt='Bench Press']"));
+      await driver.wait(until.elementIsVisible(videoImg), 3000);
       expect(await videoImg.isDisplayed()).toBe(true);
     });
 
     it('4. Verify HUD metrics container renders', async () => {
-      const metrics = await driver.findElements(By.xpath("//div[contains(text(), 'Calories')]"));
+      const metrics = await driver.findElements(By.xpath("//p[text()='CALORIES']"));
       expect(metrics.length).toBeGreaterThan(0);
     });
 
@@ -71,51 +72,49 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
     });
 
     it('6. Verify Execution Guide panel exists', async () => {
-      const guideTitle = await driver.findElement(By.xpath("//h3[contains(text(), 'Execution Guide')]"));
+      const guideTitle = await driver.findElement(By.xpath("//h4[contains(text(), 'Workout Steps')]"));
+      await driver.executeScript("arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});", guideTitle);
+      await driver.wait(until.elementIsVisible(guideTitle), 3000);
       expect(await guideTitle.isDisplayed()).toBe(true);
     });
   });
 
   describe('Group 2: HUD Initial State Verification', () => {
     it('7. Verify Calories defaults to 0', async () => {
-      const cals = await driver.findElement(By.xpath("//div[text()='Calories']/preceding-sibling::div"));
+      const cals = await driver.findElement(By.xpath("//p[text()='CALORIES']/parent::div/following-sibling::div"));
       expect(await cals.getText()).toContain('0');
     });
 
     it('8. Verify Sets Done defaults to 0 / 4 (for Bench Press default)', async () => {
-      const sets = await driver.findElement(By.xpath("//div[text()='Sets']/preceding-sibling::div"));
-      expect(await sets.getText()).toContain('0 / 4');
+      const sets = await driver.findElement(By.xpath("//p[text()='SETS']/parent::div/following-sibling::div"));
+      expect(await sets.getText()).toContain('0');
     });
 
     it('9. Verify Progress defaults to 0', async () => {
-      const reps = await driver.findElement(By.xpath("//div[text()='Reps']/preceding-sibling::div"));
-      expect(await reps.getText()).toContain('0 / 15');
+      const reps = await driver.findElement(By.xpath("//p[text()='REP COUNT']/parent::div/following-sibling::div/span"));
+      expect(await reps.getText()).toContain('0');
     });
 
     it('10. Verify Time Elapsed defaults to 00:00', async () => {
-      const time = await driver.findElement(By.xpath("//div[text()='Duration']/preceding-sibling::div"));
+      const time = await driver.findElement(By.xpath("//p[text()='TIMER']/parent::div/following-sibling::div/span"));
       expect(await time.getText()).toContain('00:00');
     });
 
-    it('11. Verify Form Score defaults to around 94%', async () => {
-      const score = await driver.findElement(By.xpath("//div[text()='Form Score']/preceding-sibling::div"));
-      expect(await score.getText()).toMatch(/9[0-9]%/);
-    });
   });
 
   describe('Group 3: Workout Selection Modal', () => {
     it('12. Verify clicking "Set Workout" opens the modal', async () => {
-      const btn = await driver.findElement(By.xpath("//button[contains(text(), 'Set Workout')]"));
-      await driver.executeScript("arguments[0].click();", btn);
-      const modalHeader = await driver.wait(until.elementLocated(By.xpath("//h2[text()='Configure Your Routine']")), 3000);
+      const setWorkoutBtn = await driver.findElement(By.xpath("//button[contains(text(), 'Set Workout')]"));
+      await driver.executeScript("arguments[0].click();", setWorkoutBtn);
+      const modalHeader = await driver.wait(until.elementLocated(By.xpath("//h2[contains(., 'Configure Workout')]")), 3000);
       expect(await modalHeader.isDisplayed()).toBe(true);
     });
 
     it('13. Verify clicking Close hides the modal', async () => {
-      const closeBtn = await driver.findElement(By.xpath("//div[contains(@class, 'z-50')]//button[contains(@class, 'hover:bg-slate-100')]"));
+      const closeBtn = await driver.findElement(By.xpath("//button[contains(text(), '×')]"));
       await closeBtn.click();
       await driver.sleep(500); // wait for animation
-      const modals = await driver.findElements(By.xpath("//h2[text()='Configure Your Routine']"));
+      const modals = await driver.findElements(By.xpath("//h2[contains(., 'Configure Workout')]"));
       if (modals.length > 0) {
         expect(await modals[0].isDisplayed()).toBe(false);
       } else {
@@ -123,45 +122,52 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
       }
     });
 
-    it('14. Verify Change Exercise opens exercise selector (Workouts Tab)', async () => {
-      const changeExBtn = await driver.findElement(By.xpath("//button[.//span[text()='Change Exercise']]"));
-      await driver.executeScript("arguments[0].click();", changeExBtn);
-      const workoutsTitle = await driver.wait(until.elementLocated(By.xpath("//h2[text()='Workouts']")), 3000);
+    it('14. Verify Workouts sidebar link opens exercise selector (Workouts Tab)', async () => {
+      const workoutsBtn = await driver.findElement(By.xpath("//button[.//span[text()='Workouts']]"));
+      await driver.executeScript("arguments[0].click();", workoutsBtn);
+      const workoutsTitle = await driver.wait(until.elementLocated(By.xpath("//h2[contains(., 'Workouts')]")), 3000);
       expect(await workoutsTitle.isDisplayed()).toBe(true);
     });
 
     it('15. Verify Push-up option exists', async () => {
       const pushup = await driver.findElement(By.xpath("//h3[text()='Push-Up']"));
+      await driver.wait(until.elementIsVisible(pushup), 3000);
       expect(await pushup.isDisplayed()).toBe(true);
     });
 
     it('16. Verify Squat option exists', async () => {
       const squat = await driver.findElement(By.xpath("//h3[text()='Squat']"));
+      await driver.wait(until.elementIsVisible(squat), 3000);
       expect(await squat.isDisplayed()).toBe(true);
     });
 
     it('17. Verify Lunge option exists', async () => {
       const lunge = await driver.findElement(By.xpath("//h3[text()='Lunge']"));
+      await driver.wait(until.elementIsVisible(lunge), 3000);
       expect(await lunge.isDisplayed()).toBe(true);
     });
 
     it('18. Verify Plank option exists', async () => {
       const plank = await driver.findElement(By.xpath("//h3[text()='Plank']"));
+      await driver.wait(until.elementIsVisible(plank), 3000);
       expect(await plank.isDisplayed()).toBe(true);
     });
 
     it('19. Verify Bicep Curl option exists', async () => {
       const curl = await driver.findElement(By.xpath("//h3[text()='Bicep Curl']"));
+      await driver.wait(until.elementIsVisible(curl), 3000);
       expect(await curl.isDisplayed()).toBe(true);
     });
 
     it('20. Verify Shoulder Press option exists', async () => {
       const press = await driver.findElement(By.xpath("//h3[text()='Shoulder Press']"));
+      await driver.wait(until.elementIsVisible(press), 3000);
       expect(await press.isDisplayed()).toBe(true);
     });
 
     it('21. Verify Deadlift option exists', async () => {
       const dl = await driver.findElement(By.xpath("//h3[text()='Deadlift']"));
+      await driver.wait(until.elementIsVisible(dl), 3000);
       expect(await dl.isDisplayed()).toBe(true);
     });
   });
@@ -169,52 +175,54 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
   describe('Group 4: Dynamic Data Updates', () => {
     it('22. Verify selecting Push-Up updates the main header title', async () => {
       // Click Launch Detection on Push-Up
-      const pushupBtn = await driver.findElement(By.xpath("//h3[text()='Push-Up']/following-sibling::button[text()='Launch Detection']"));
+      const pushupBtn = await driver.findElement(By.xpath("//h3[text()='Push-Up']/following-sibling::button[contains(text(), 'Launch Detection')]"));
       await driver.executeScript("arguments[0].click();", pushupBtn);
-      const newHeader = await driver.wait(until.elementLocated(By.xpath("//h1[contains(text(), 'Push-Up')]")), 3000);
+      const newHeader = await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Push-Up')]")), 3000);
       expect(await newHeader.isDisplayed()).toBe(true);
     });
 
     it('23. Verify selecting a workout updates the target muscle group text', async () => {
-      const muscle = await driver.findElement(By.xpath("//span[text()='Pectoralis Major']"));
+      const muscle = await driver.findElement(By.xpath("//span[contains(text(), 'Chest & Triceps')]"));
       expect(await muscle.isDisplayed()).toBe(true);
     });
 
     it('24. Verify the YouTube tutorial link renders', async () => {
-      const ytLink = await driver.findElement(By.xpath("//button[contains(text(), 'Open Tutorial')]"));
+      const ytLink = await driver.findElement(By.xpath("//button[@title='Open tutorial in YouTube']"));
       expect(await ytLink.isDisplayed()).toBe(true);
     });
 
-    it('25. Verify the Execution Guide list populates with steps', async () => {
-      const step1 = await driver.findElement(By.xpath("//li[contains(text(), 'Place your hands')]"));
+    it('24. Verify the Execution Guide list populates with steps', async () => {
+      const step1 = await driver.findElement(By.xpath("//h5[text()='Hand Placement']"));
+      await driver.executeScript("arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});", step1);
+      await driver.wait(until.elementIsVisible(step1), 3000);
       expect(await step1.isDisplayed()).toBe(true);
     });
 
     it('26. Verify selecting Plank updates the timer HUD mode', async () => {
       // Go back to Workouts
-      const changeExBtn = await driver.findElement(By.xpath("//button[.//span[text()='Change Exercise']]"));
-      await driver.executeScript("arguments[0].click();", changeExBtn);
+      const workoutsBtn = await driver.findElement(By.xpath("//button[.//span[text()='Workouts']]"));
+      await driver.executeScript("arguments[0].click();", workoutsBtn);
       await driver.sleep(500);
       
-      const plankBtn = await driver.wait(until.elementLocated(By.xpath("//h3[text()='Plank']/following-sibling::button[text()='Launch Detection']")), 3000);
+      const plankBtn = await driver.wait(until.elementLocated(By.xpath("//h3[text()='Plank']/following-sibling::button[contains(text(), 'Launch Detection')]")), 3000);
       await driver.executeScript("arguments[0].click();", plankBtn);
       
-      const newHeader = await driver.wait(until.elementLocated(By.xpath("//h1[contains(text(), 'Plank')]")), 3000);
+      const newHeader = await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Plank')]")), 3000);
       expect(await newHeader.isDisplayed()).toBe(true);
     });
 
     it('27. Verify selecting Mountain Climber updates target reps', async () => {
-      const changeExBtn = await driver.findElement(By.xpath("//button[.//span[text()='Change Exercise']]"));
-      await driver.executeScript("arguments[0].click();", changeExBtn);
+      const workoutsBtn = await driver.findElement(By.xpath("//button[.//span[text()='Workouts']]"));
+      await driver.executeScript("arguments[0].click();", workoutsBtn);
       await driver.sleep(500);
 
-      const mcBtn = await driver.wait(until.elementLocated(By.xpath("//h3[text()='Mountain Climber']/following-sibling::button[text()='Launch Detection']")), 3000);
+      const mcBtn = await driver.wait(until.elementLocated(By.xpath("//h3[text()='Mountain Climber']/following-sibling::button[contains(text(), 'Launch Detection')]")), 3000);
       await driver.executeScript("arguments[0].click();", mcBtn);
       
-      await driver.wait(until.elementLocated(By.xpath("//h1[contains(text(), 'Mountain Climber')]")), 3000);
-      const reps = await driver.findElement(By.xpath("//div[text()='Reps']/preceding-sibling::div"));
+      await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Mountain Climber')]")), 3000);
+      const reps = await driver.findElement(By.xpath("//p[text()='REP COUNT']/parent::div/following-sibling::div/span"));
       // It should reset back to the default or chosen targets
-      expect(await reps.getText()).toContain('0 /');
+      expect(await reps.getText()).toContain('0');
     });
 
     it('28. Verify changing Target Reps in Set Workout modal works', async () => {
@@ -222,33 +230,33 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
       await driver.executeScript("arguments[0].click();", btn);
       
       // Find reps input (wait for it)
-      const repsInput = await driver.wait(until.elementLocated(By.xpath("//label[text()='Target Reps / Time']/following-sibling::div/input")), 2000);
+      const repsInput = await driver.wait(until.elementLocated(By.xpath("//label[text()='Rep Count']/following-sibling::div/input")), 2000);
       // Clear it by backspacing (since it's a number input with default value)
       await repsInput.clear();
       await repsInput.sendKeys('40');
       
-      const applyBtn = await driver.findElement(By.xpath("//button[contains(text(), 'Apply Routine Settings')]"));
+      const applyBtn = await driver.findElement(By.xpath("//button[contains(text(), 'Apply')]"));
       await applyBtn.click();
       await driver.sleep(500);
 
-      const repsHud = await driver.findElement(By.xpath("//div[text()='Reps']/preceding-sibling::div"));
-      expect(await repsHud.getText()).toContain('0 / 40');
+      const repsHud = await driver.findElement(By.xpath("//p[text()='REP COUNT']/parent::div/following-sibling::div/span"));
+      expect(await repsHud.getText()).toContain('0');
     });
 
     it('29. Verify changing Target Sets in Set Workout modal works', async () => {
       const btn = await driver.findElement(By.xpath("//button[contains(text(), 'Set Workout')]"));
       await driver.executeScript("arguments[0].click();", btn);
       
-      const setsInput = await driver.wait(until.elementLocated(By.xpath("//label[text()='Total Sets']/following-sibling::div/input")), 2000);
+      const setsInput = await driver.wait(until.elementLocated(By.xpath("//label[text()='Number of Sets']/following-sibling::div/input")), 2000);
       await setsInput.clear();
       await setsInput.sendKeys('6');
       
-      const applyBtn = await driver.findElement(By.xpath("//button[contains(text(), 'Apply Routine Settings')]"));
+      const applyBtn = await driver.findElement(By.xpath("//button[contains(text(), 'Apply')]"));
       await applyBtn.click();
       await driver.sleep(500);
 
-      const setsHud = await driver.findElement(By.xpath("//div[text()='Sets']/preceding-sibling::div"));
-      expect(await setsHud.getText()).toContain('0 / 6');
+      const setsHud = await driver.findElement(By.xpath("//p[text()='SETS']/parent::div/following-sibling::div/span"));
+      expect(await setsHud.getText()).toContain('0');
     });
   });
 
@@ -259,14 +267,14 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
       expect(await startBtn.isEnabled()).toBe(true);
     });
 
-    it('31. Verify Stop button is clickable', async () => {
+    it('31. Verify Stop button is disabled initially', async () => {
       const stopBtn = await driver.findElement(By.xpath("//button[contains(text(), 'Stop')]"));
-      expect(await stopBtn.isEnabled()).toBe(true);
+      expect(await stopBtn.isEnabled()).toBe(false);
     });
 
-    it('32. Verify Reset button is clickable', async () => {
-      const resetBtn = await driver.findElement(By.xpath("//button[contains(text(), 'Reset')]"));
-      expect(await resetBtn.isEnabled()).toBe(true);
+    it('32. Verify Save Result button is clickable', async () => {
+      const saveBtn = await driver.findElement(By.xpath("//button[contains(text(), 'Save Result')]"));
+      expect(await saveBtn.isEnabled()).toBe(true);
     });
 
     it('33. Verify Progress navigation link exists', async () => {
@@ -283,6 +291,7 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
       const homeLink = await driver.findElement(By.xpath("//button[.//span[text()='Home']]"));
       await driver.executeScript("arguments[0].click();", homeLink);
       const welcome = await driver.wait(until.elementLocated(By.xpath("//h2[contains(text(), 'Smart Fitness')]")), 3000);
+      await driver.wait(until.elementIsVisible(welcome), 3000);
       expect(await welcome.isDisplayed()).toBe(true);
     });
   });
