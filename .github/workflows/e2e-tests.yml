@@ -46,4 +46,15 @@ jobs:
       run: npx wait-on tcp:3000 -t 90000
 
     - name: Run E2E Tests
-      run: npm run test:e2e
+      run: npm run test:e2e -- --json --outputFile=test-results.json
+
+    - name: Generate Excel Report
+      if: always()
+      run: node tests/e2e/generate-excel.js
+
+    - name: Upload Excel Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: E2E-Test-Report
+        path: E2E-Test-Report.xlsx
