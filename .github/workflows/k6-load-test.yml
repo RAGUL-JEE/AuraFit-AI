@@ -1,12 +1,14 @@
 name: k6 Load Test
 
 on:
+  push:
+    branches: [ "main" ]
   workflow_dispatch: # Allows manual trigger from GitHub UI
     inputs:
       target_url:
         description: 'URL to load test'
         required: true
-        default: 'https://your-production-url.com'
+        default: 'https://google.com'
 
 jobs:
   load-test:
@@ -21,4 +23,4 @@ jobs:
         with:
           filename: load-testing/baseline.js
         env:
-          TARGET_URL: ${{ github.event.inputs.target_url }}
+          TARGET_URL: ${{ github.event.inputs.target_url || 'https://google.com' }}
