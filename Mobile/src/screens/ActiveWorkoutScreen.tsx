@@ -12,7 +12,9 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 import Constants from 'expo-constants';
 import * as Speech from 'expo-speech';
 
-const BACKEND_URL = 'http://192.168.1.5:5001';
+const debuggerHost = Constants.expoConfig?.hostUri;
+const localIp = debuggerHost?.split(':')[0] || '192.168.1.5';
+const BACKEND_URL = `http://${localIp}:5001`;
 const { width, height } = Dimensions.get('window');
 
 export default function ActiveWorkoutScreen({ route, navigation }: any) {
