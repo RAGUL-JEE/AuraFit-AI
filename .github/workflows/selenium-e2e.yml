@@ -26,9 +26,7 @@ jobs:
     - name: Start Application Services
       run: |
         npm run dev &
-        
-    - name: Wait for Application to be ready
-      run: npx wait-on http-get://127.0.0.1:3000 -t 120000
+        sleep 15
 
     - name: Setup Python
       uses: actions/setup-python@v5
@@ -45,13 +43,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y google-chrome-stable
-        # WebDriver Manager in the Python code will handle the ChromeDriver installation automatically.
 
     - name: Execute Selenium tests
       run: |
         export HEADLESS=true
         pytest selenium_framework/tests/ --html=selenium_framework/reports/index.html --self-contained-html
-      continue-on-error: true # Continue to upload artifacts even if tests fail
+      continue-on-error: true
 
     - name: Upload Test Artifacts (Reports & Screenshots)
       uses: actions/upload-artifact@v4
