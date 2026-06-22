@@ -39,7 +39,7 @@ jobs:
 
       - name: Run Selenium Tests (Headless Chrome)
         working-directory: ./e2e
-        run: npm run test:headed # Our test:headed script overrides HEADLESS, but actually we want default headless in CI. Let's run `npm test`
+        run: npm test
         env:
           HEADLESS: 'true'
           BROWSER: 'chrome'
