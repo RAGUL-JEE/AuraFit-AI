@@ -28,7 +28,7 @@ jobs:
         npm run dev &
         
     - name: Wait for Application to be ready
-      run: npx wait-on http://localhost:3000 -t 60000
+      run: npx wait-on http-get://127.0.0.1:3000 -t 120000
 
     - name: Setup Python
       uses: actions/setup-python@v5
