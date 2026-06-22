@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "esbuild server.ts --bundle --platform=node --outfile=dist/server.js --format=esm --packages=external",
-    "dev": "concurrently --kill-others-on-fail --prefix-colors \"bgBlue.bold,bgGreen.bold,bgYellow.bold\" --names \"FRONTEND,BACKEND,DETECTION\" \"vite --port=3000 --host=0.0.0.0\" \"node dist/server.js\" \"python detection_server.py\"",
+    "predev": "esbuild backend/server.ts --bundle --platform=node --outfile=dist/server.js --format=esm --packages=external",
+    "dev": "concurrently --kill-others-on-fail --prefix-colors \"bgBlue.bold,bgGreen.bold\" --names \"FRONTEND,BACKEND\" \"vite --port=3000 --host=0.0.0.0\" \"node dist/server.js\"",
     "dev:frontend": "vite --port=3000 --host=0.0.0.0",
     "server": "node dist/server.js",
     "build": "vite build",

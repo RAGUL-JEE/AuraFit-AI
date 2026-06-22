@@ -1,0 +1,62 @@
+name: Selenium E2E Automation Framework
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  selenium-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js (for local app server)
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Application Dependencies
+      run: npm install
+
+    - name: Start Application Services
+      run: |
+        npm run dev &
+        
+    - name: Wait for Application to be ready
+      run: npx wait-on http://localhost:3000 -t 60000
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install Python Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r selenium_framework/requirements.txt
+
+    - name: Install Chrome and ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        # WebDriver Manager in the Python code will handle the ChromeDriver installation automatically.
+
+    - name: Execute Selenium tests
+      run: |
+        export HEADLESS=true
+        pytest selenium_framework/tests/ --html=selenium_framework/reports/index.html --self-contained-html
+      continue-on-error: true # Continue to upload artifacts even if tests fail
+
+    - name: Upload Test Artifacts (Reports & Screenshots)
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-reports-and-screenshots
+        path: |
+          selenium_framework/reports/
+        retention-days: 14
