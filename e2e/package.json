@@ -1,0 +1,26 @@
+{
+  "name": "react-selenium-e2e",
+  "version": "1.0.0",
+  "description": "Enterprise Selenium E2E Automation Framework for React",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run generate-tests && mocha \"tests/**/*.test.js\"",
+    "test:headed": "set HEADLESS=false&& npm run test",
+    "test:firefox": "set BROWSER=firefox&& npm run test",
+    "test:edge": "set BROWSER=edge&& npm run test",
+    "generate-tests": "node utilities/TestGenerator.js"
+  },
+  "dependencies": {
+    "chai": "^4.3.10",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.3.1",
+    "exceljs": "^4.4.0",
+    "glob": "^10.3.10",
+    "mocha": "^10.2.0",
+    "mochawesome": "^7.1.3",
+    "selenium-webdriver": "^4.16.0",
+    "winston": "^3.11.0"
+  },
+  "author": "Automation Architect",
+  "license": "ISC"
+}
