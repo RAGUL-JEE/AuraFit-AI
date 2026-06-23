@@ -153,7 +153,69 @@ def create_styled_excel(file_path, report_title, sub_title, metrics_dict, data_h
 
 
 def generate_security_cases():
-    categories = {
+    cases_data = {
+        "Dependency Security": [
+            ("Direct Dependency Vulnerability Audit", "Scan direct npm packages for critical security advisories."),
+            ("Indirect Dependency Nesting Audit", "Validate deep dependency tree for security alerts."),
+            ("Deprecated Packages Verification", "Ensure no deprecated dependencies are in use."),
+            ("License Compliance Audit", "Verify all libraries comply with security policies."),
+            ("Lockfile Integrity Validation", "Check package lockfile integrity hashes match npm registry."),
+            ("DevDependency Vulnerability Audit", "Scan dev npm packages for critical security advisories."),
+            ("Unused Dependency Audit", "Ensure no orphaned or unused packages remain in package.json."),
+            ("Package Origin Verification", "Verify package registries to avoid namespace hijacking or dependency confusion."),
+            ("Dependency Licensing Type Check", "Verify that dependency licenses match copyleft restrictions."),
+            ("Package Script Lifecycle Audit", "Verify pre/postinstall scripts in third-party libraries for malicious actions."),
+            ("Semantic Versioning Range Pinning", "Ensure strict version ranges to prevent malicious minor updates."),
+            ("Shrinkwrap/Lockfile Sync Check", "Confirm lockfile package definitions match package.json exactly."),
+            ("Outdated Security Patches Audit", "Verify dependencies are running latest security patch updates."),
+            ("Sub-dependency Peer Verification", "Ensure peer dependencies do not resolve to vulnerable revisions."),
+            ("Registry Certificate Verification", "Enforce SSL/TLS validation when communicating with the npm registry.")
+        ],
+        "SAST & Code Analysis": [
+            ("SQL Injection Prevention Check", "Verify all database queries use safe compiled APIs/Firestore SDKs."),
+            ("XSS Protection Verification", "Ensure context-aware output encoding is used to prevent Cross-Site Scripting."),
+            ("CSRF Token Validation", "Check that anti-CSRF tokens are present and validated for state-changing requests."),
+            ("Command Injection Prevention", "Verify input is properly sanitized before being passed to system commands."),
+            ("Memory Leak Detection", "Analyze code for objects that are allocated but never deallocated."),
+            ("Buffer Overflow Checks", "Scan for unchecked buffer boundaries in lower-level system code.")
+        ],
+        "API Security": [
+            ("Rate Limiting Check", "Verify API endpoints enforce rate limiting to prevent abuse."),
+            ("API Key Rotation Policy", "Ensure API keys have expiration dates and rotation policies."),
+            ("Mass Assignment Prevention", "Check that APIs do not allow mass assignment of object properties."),
+            ("Unsafe Consumption of APIs", "Ensure data from third-party APIs is validated before use.")
+        ],
+        "Database Security": [
+            ("Data Encryption at Rest", "Verify sensitive database fields are encrypted at rest."),
+            ("NoSQL Injection Prevention", "Ensure NoSQL queries are parameterized or properly escaped."),
+            ("Database Access Logging", "Check that all database access by administrative accounts is logged.")
+        ],
+        "Authentication": [
+            ("Password Hashing Algorithm Check", "Ensure passwords are hashed using strong algorithms like bcrypt or Argon2."),
+            ("Session Timeout Enforcement", "Verify inactive sessions are automatically terminated."),
+            ("Multi-Factor Authentication Check", "Ensure MFA is required for all administrative access."),
+            ("Brute Force Attack Protection", "Check for account lockout mechanisms after repeated failed login attempts.")
+        ],
+        "Authorization": [
+            ("Least Privilege Principle Audit", "Ensure users and services operate with the minimum required permissions."),
+            ("Role-Based Access Control (RBAC) Audit", "Verify that access to resources is strictly controlled by user roles."),
+            ("IDOR Vulnerability Scan", "Ensure users cannot access resources belonging to others by manipulating IDs."),
+            ("Directory Traversal Protection", "Verify that file paths provided by users are strictly validated.")
+        ],
+        "Cloud Misconfiguration": [
+            ("Security Misconfiguration Check", "Ensure cloud resources do not use default credentials or configurations."),
+            ("Cloud IAM Permissions Check", "Verify that overly permissive IAM roles (e.g., AdministratorAccess) are not used."),
+            ("S3 Bucket Public Access Block", "Ensure cloud storage buckets are not publicly accessible unless explicitly required."),
+            ("CloudTrail Logging Audit", "Verify that comprehensive auditing is enabled for all cloud infrastructure changes.")
+        ],
+        "Secrets & Credentials": [
+            ("Hardcoded Secrets Scan", "Scan source code repositories for hardcoded API keys and passwords."),
+            ("Sensitive Data Exposure Audit", "Ensure sensitive data is not exposed in application logs or error messages."),
+            ("JWT Signature Validation", "Verify that JSON Web Tokens are properly signed and validated.")
+        ]
+    }
+
+    categories_prefix = {
         "Dependency Security": "SEC-DEP",
         "SAST & Code Analysis": "SEC-SAST",
         "API Security": "SEC-API",
@@ -163,33 +225,12 @@ def generate_security_cases():
         "Cloud Misconfiguration": "SEC-CLOUD",
         "Secrets & Credentials": "SEC-SEC"
     }
-    
-    checks = [
-        "Injection Prevention Audit", "XSS Protection Verification", "CSRF Token Validation",
-        "Rate Limiting Check", "SSL/TLS Configuration Audit", "Data Encryption at Rest",
-        "Data Encryption in Transit", "Password Hashing Algorithm Check", "Session Timeout Enforcement",
-        "JWT Signature Validation", "Least Privilege Principle Audit", "CORS Policy Restriction",
-        "Sensitive Data Exposure Audit", "Hardcoded Secrets Scan", "Dependency Vulnerability Scan",
-        "Lockfile Integrity Check", "License Compliance Audit", "Unused Dependency Audit",
-        "Outdated Packages Verification", "Input Validation Checks", "SQL Parameterization Audit",
-        "NoSQL Injection Prevention", "Role-Based Access Control (RBAC) Audit", "IDOR Vulnerability Scan",
-        "Directory Traversal Protection", "Security Misconfiguration Check", "Server Information Disclosure Audit",
-        "Brute Force Attack Protection", "Account Lockout Mechanism", "Multi-Factor Authentication Check",
-        "Secure Headers Verification (HSTS, CSP)", "Cookie Security Attributes (HttpOnly, Secure)",
-        "API Key Rotation Policy", "OAuth2 Implementation Audit", "File Upload Security Checks",
-        "Malware Scanning on Uploads", "XML External Entity (XXE) Prevention", "Server-Side Request Forgery Protection",
-        "Business Logic Flaws Audit", "Open Redirect Prevention", "Subdomain Takeover Scan",
-        "Clickjacking Protection", "Command Injection Prevention", "Memory Leak Detection",
-        "Buffer Overflow Checks", "Container Image Vulnerability Scan", "Kubernetes Security Context Audit",
-        "Cloud IAM Permissions Check", "S3 Bucket Public Access Block", "CloudTrail Logging Audit"
-    ]
-    
+
     rows = []
-    for cat, prefix in categories.items():
-        for i in range(1, 51):
-            check_id = f"{prefix}-{str(i).zfill(3)}"
-            rule_name = checks[i % len(checks)] + f" (Variant {i})"
-            desc = f"Ensure '{rule_name}' is properly implemented according to security standards and complies with automated policies."
+    for cat, checks in cases_data.items():
+        prefix = categories_prefix[cat]
+        for i, (rule_name, desc) in enumerate(checks, 1):
+            check_id = f"{prefix}-{str(i).zfill(2)}"
             status = "PASS"
             rows.append([check_id, cat, rule_name, desc, status])
             
