@@ -134,9 +134,10 @@ def create_styled_excel(file_path, report_title, sub_title, metrics_dict, data_h
         row_idx += 1
         
     # Adjust column widths
-    for col in ws.columns:
+    from openpyxl.utils import get_column_letter
+    for i, col in enumerate(ws.columns, 1):
         max_length = 15
-        column = col[0].column_letter
+        column = get_column_letter(i)
         for cell in col:
             try:
                 if cell.row > start_data_header and len(str(cell.value)) > max_length:
