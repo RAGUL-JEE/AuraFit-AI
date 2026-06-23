@@ -18,7 +18,7 @@ jobs:
     - name: Setup Node.js (for local app server)
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22'
 
     - name: Install Application Dependencies
       run: npm install
@@ -57,3 +57,21 @@ jobs:
         path: |
           selenium_framework/reports/
         retention-days: 14
+
+    - name: Run k6 Load Test
+      uses: grafana/k6-action@v0.3.1
+      with:
+        filename: load-testing/baseline.js
+        flags: --summary-export=load-testing/summary.json
+      continue-on-error: true
+
+    - name: Generate Load Test Excel Report
+      run: |
+        cd load-testing
+        python generate_k6_excel.py
+
+    - name: Upload Load Test Excel Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: load-test-report
+        path: load-testing/LoadTestReport.xlsx
