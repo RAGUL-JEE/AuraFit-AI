@@ -8,17 +8,30 @@ BASE_URL = "http://localhost:3000"
 class TestWorkout:
     def test_workout_page_loads(self, browser):
         workout_page = WorkoutPage(browser)
-        workout_page.navigate_to(f"{BASE_URL}/workout")
+        workout_page.navigate_to(BASE_URL)
+        from pages.auth_page import AuthPage
+        auth = AuthPage(browser)
+        if auth.is_visible(auth.SUBMIT_BUTTON):
+            auth.login("test@example.com", "password123")
+        
+        from pages.navigation_page import NavigationPage
+        nav = NavigationPage(browser)
+        nav.click((By.XPATH, "//button[.//span[text()='Workouts']]"))
+        
         assert workout_page.is_workout_page_loaded(), "Workout page did not load"
 
     def test_launch_workout(self, browser):
-        # We need to be logged in first, but let's assume we navigate there directly
-        # Wait, the app might redirect to login if not authenticated.
-        # Let's navigate to auth, login, then go to workout.
-        # Actually, let's just go to /workouts
         workout_page = WorkoutPage(browser)
-        workout_page.navigate_to(f"{BASE_URL}/workouts")
-        # Ensure it's loaded
+        workout_page.navigate_to(BASE_URL)
+        from pages.auth_page import AuthPage
+        auth = AuthPage(browser)
+        if auth.is_visible(auth.SUBMIT_BUTTON):
+            auth.login("test@example.com", "password123")
+        
+        from pages.navigation_page import NavigationPage
+        nav = NavigationPage(browser)
+        nav.click((By.XPATH, "//button[.//span[text()='Workouts']]"))
+        
         assert workout_page.is_workout_page_loaded(), "Workout page didn't load"
         
         count = workout_page.get_workout_count()

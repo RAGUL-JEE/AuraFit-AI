@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from .base_page import BasePage
 
 class ProgressPage(BasePage):
-    PROGRESS_CHART = (By.XPATH, "//h2[contains(text(), 'Analytics & Progress')]")
+    PROGRESS_CHART = (By.XPATH, "//h2[contains(text(), 'Progress')]")
     STATS_SUMMARY = (By.CSS_SELECTOR, ".recharts-wrapper")
 
     def __init__(self, driver):

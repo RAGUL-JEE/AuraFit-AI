@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from .base_page import BasePage
 
 class FavoritesPage(BasePage):
-    FAVORITES_HEADER = (By.XPATH, "//h2[contains(text(), 'Favorites')]")
+    FAVORITES_HEADER = (By.XPATH, "//h2[contains(text(), 'Favorite')]")
     FAVORITE_ITEMS = (By.CSS_SELECTOR, ".theme-card")
 
     def __init__(self, driver):
