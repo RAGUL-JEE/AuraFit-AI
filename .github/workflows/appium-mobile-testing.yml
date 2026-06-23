@@ -1,0 +1,89 @@
+name: Appium Mobile Testing
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  mobile-tests:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install Python Dependencies
+      run: |
+        cd appium_framework
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Node.js & Appium
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - run: |
+        npm install -g appium
+        appium driver install uiautomator2
+
+    - name: Start Appium Server
+      run: appium --base-path /wd/hub &
+      
+    - name: Install Expo CLI (For Expo Go testing)
+      run: npm install -g expo-cli
+
+    # Note: Hardware acceleration is supported on macos runners
+    - name: Run Android Emulator and Execute Tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 30
+        target: default
+        arch: x86_64
+        profile: Nexus 6
+        script: |
+          # Change to framework directory
+          cd appium_framework
+          
+          # Generate the 400+ Test Cases Excel file
+          python test_case_generator.py
+          
+          # Optional: Launch Expo Go or Install APK here
+          # e.g., adb install path/to/app.apk
+          
+          # Run Pytest with Allure and Excel reporting
+          pytest tests/ --alluredir=reports/allure-results
+
+    - name: Generate Allure Report
+      uses: simple-elf/allure-report-action@master
+      if: always()
+      with:
+        allure_results: appium_framework/reports/allure-results
+        allure_report: appium_framework/reports/allure-report
+        allure_history: allure-history
+
+    - name: Upload Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: mobile-automation-reports
+        path: |
+          appium_framework/Mobile_TestCases.xlsx
+          appium_framework/reports/Mobile_TestExecutionReport.xlsx
+          appium_framework/reports/Mobile_TestAnalytics.xlsx
+          appium_framework/reports/allure-report/
+          appium_framework/reports/screenshots/
