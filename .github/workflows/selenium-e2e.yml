@@ -1,4 +1,4 @@
-name: Selenium E2E Automation Framework
+name: Validate Complete User Journey Using Selenium E2E Automation
 
 on:
   push:
