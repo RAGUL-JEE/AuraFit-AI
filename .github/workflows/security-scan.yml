@@ -1,0 +1,44 @@
+name: AuraFit-AI Comprehensive Security Scan
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  security-assessment:
+    name: Enterprise Security Assessment
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Setup Node.js (for dependency scanning)
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install Python Requirements
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas xlsxwriter
+
+    - name: Run Security Scans & Generate Reports
+      run: |
+        python security_framework/scanner.py
+
+    - name: Upload Security Assessment Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: aurafit-security-reports
+        path: |
+          security_framework/reports/security/
+        retention-days: 30
