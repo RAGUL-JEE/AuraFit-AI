@@ -9,11 +9,17 @@ on:
 
 jobs:
   mobile-tests:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
+
+    - name: Enable KVM group perms
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
 
     - name: Setup Python
       uses: actions/setup-python@v5
@@ -47,25 +53,18 @@ jobs:
     - name: Install Expo CLI (For Expo Go testing)
       run: npm install -g expo-cli
 
-    # Note: Hardware acceleration is supported on macos runners
     - name: Run Android Emulator and Execute Tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 30
+        api-level: 29
         target: default
         arch: x86_64
         profile: Nexus 6
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        disable-animations: true
         script: |
-          # Change to framework directory
           cd appium_framework
-          
-          # Generate the 400+ Test Cases Excel file
           python test_case_generator.py
-          
-          # Optional: Launch Expo Go or Install APK here
-          # e.g., adb install path/to/app.apk
-          
-          # Run Pytest with Allure and Excel reporting
           pytest tests/ --alluredir=reports/allure-results
 
     - name: Generate Allure Report
