@@ -16,12 +16,10 @@ export default defineConfig(() => {
       // Do not modify—file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
-      watch: process.env.DISABLE_HMR === 'true' ? null : {
-        ignored: ['**/selenium_framework/**', '**/python_e2e/**']
-      },
+      watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
         '/api/detection': {
-          target: 'http://127.0.0.1:5001',
+          target: 'http://localhost:5001',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api\/detection/, ''),
           configure: (proxy, _options) => {
@@ -36,7 +34,7 @@ export default defineConfig(() => {
           },
         },
         '/api': {
-          target: 'http://127.0.0.1:5000',
+          target: 'http://localhost:5000',
           changeOrigin: true,
           configure: (proxy, _options) => {
             proxy.removeAllListeners('error');
