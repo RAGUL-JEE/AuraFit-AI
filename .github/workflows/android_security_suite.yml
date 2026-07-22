@@ -1,0 +1,66 @@
+name: android_security_suite
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  run-security-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+        cache: 'pip'
+      
+    - name: Install Python Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install openpyxl pandas
+
+    - name: Execute Android Security & Vulnerability Scans
+      run: |
+        export PYTHONPATH=.
+        python SecurityTesting/run_security_suite.py
+        
+      continue-on-error: true
+
+    - name: Upload Security Excel Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Android-Security-Excel-Report
+        path: SecurityTesting/Reports/Excel/Security_Analysis.xlsx
+        retention-days: 14
+
+    - name: Upload Security HTML Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Android-Security-HTML-Dashboard
+        path: SecurityTesting/Reports/HTML/Security_Dashboard.html
+        retention-days: 14
+        
+    - name: Upload Security JSON Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Android-Security-JSON-Data
+        path: SecurityTesting/Reports/JSON/Security_Results.json
+        retention-days: 14
+
+    - name: Upload Security Execution Logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Android-Security-Logs
+        path: SecurityTesting/Logs/execution.log
+        retention-days: 14
