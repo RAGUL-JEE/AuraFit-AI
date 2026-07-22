@@ -40,7 +40,7 @@ jobs:
       id: test_execution
       run: |
         # Run tests with PyTest, generating HTML and Allure results
-        pytest automation/tests/ \
+        python -m pytest automation/tests/ \
           --html=automation/reports/HTML_Report.html \
           --alluredir=automation/reports/allure-results \
           -v
