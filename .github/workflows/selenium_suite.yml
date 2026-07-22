@@ -1,0 +1,86 @@
+name: Enterprise Selenium Automation Suite
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  run-selenium-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+        cache: 'pip'
+
+    - name: Install System Dependencies for Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget xvfb libxi6 libgconf-2-4 default-jdk
+
+    - name: Install Python Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r automation/requirements.txt
+
+    - name: Execute PyTest Suite (400+ Parameterized Tests)
+      id: test_execution
+      run: |
+        # Run tests with PyTest, generating HTML and Allure results
+        pytest automation/tests/ \
+          --html=automation/reports/HTML_Report.html \
+          --alluredir=automation/reports/allure-results \
+          -v
+          
+      # The python hook `pytest_sessionfinish` in conftest.py will automatically 
+      # generate the `Execution_Report.xlsx` file using OpenPyXL when the run completes.
+
+    - name: Upload Excel Execution Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Excel-Report
+        path: automation/reports/Execution_Report.xlsx
+        retention-days: 14
+
+    - name: Upload HTML Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: HTML-Report
+        path: automation/reports/HTML_Report.html
+        retention-days: 14
+
+    - name: Upload Failure Screenshots
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Screenshots
+        path: automation/screenshots/
+        retention-days: 14
+
+    - name: Upload Automation Logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Execution-Logs
+        path: automation/logs/
+        retention-days: 14
+
+    - name: Upload Allure Raw Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Allure-Results
+        path: automation/reports/allure-results/
+        retention-days: 14
+
+    # Optional: You can add an Allure Report Generator action here to publish the allure results to GitHub Pages.
