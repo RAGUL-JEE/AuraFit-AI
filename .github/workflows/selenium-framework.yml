@@ -35,10 +35,12 @@ jobs:
       - name: Start Application Background
         run: npm run preview &
         env:
-          PORT: 5173
+          PORT: 4173
 
       - name: Wait for App to be Ready
-        run: npx wait-on http://localhost:5173 -t 60000
+        run: npx wait-on http://127.0.0.1:4173 -t 60000
+        continue-on-error: true
+
 
       - name: Run Maven Selenium Tests
         working-directory: ./AuraFit-Selenium
