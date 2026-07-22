@@ -33,7 +33,7 @@ jobs:
 
     - name: Start Appium Server
       run: |
-        appium &
+        nohup appium > /dev/null 2>&1 &
       
     - name: Install Python Dependencies
       run: |
