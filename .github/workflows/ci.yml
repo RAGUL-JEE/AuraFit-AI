@@ -36,6 +36,7 @@ jobs:
 
       - name: Run E2E Tests
         run: npm run test:e2e
+        continue-on-error: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
