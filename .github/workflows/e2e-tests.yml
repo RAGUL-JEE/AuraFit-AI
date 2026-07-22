@@ -27,7 +27,9 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y libgl1
 
     - name: Install Node dependencies
-      run: npm install
+      run: |
+        rm -f package-lock.json
+        npm install
 
     - name: Install Python dependencies
       run: |
