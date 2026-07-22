@@ -205,25 +205,32 @@ def generate_excel_report(results_list):
     print(f"Excel report generated successfully at {file_path}")
 
 if __name__ == "__main__":
-    # Mock data to test the layout
+    # Mock data to demonstrate 400 test executions
     sample = []
-    for i in range(1, 15):
+    for i in range(1, 401):
         status = "Passed"
         error = ""
-        if i == 5 or i == 12:
+        # Create some realistic failure and skip ratios
+        if i % 15 == 0:
             status = "Failed"
-            error = "NoSuchElementException: unable to locate element"
-        elif i == 8:
+            error = "AssertionError: Expected 'Dashboard', got 'Login'"
+        elif i % 25 == 0:
+            status = "Failed"
+            error = "TimeoutException: Element not clickable"
+        elif i % 40 == 0:
             status = "Skipped"
             error = "Test skipped due to missing prerequisite"
             
+        module = "Authentication" if i <= 100 else ("Dashboard" if i <= 200 else ("Workout" if i <= 300 else "Profile"))
+        feature = "test_invalid_login" if i <= 100 else ("test_workout_detection" if i <= 300 else "test_settings_update")
+            
         sample.append({
             "Test ID": f"SEL-TC-{str(i).zfill(3)}",
-            "Module": "Authentication" if i < 7 else "Dashboard",
-            "Feature": "test_invalid_login" if i < 7 else "test_workout_detection",
+            "Module": module,
+            "Feature": feature,
             "Error Message": error,
             "Status": status,
             "Browser": "Chrome Headless",
-            "Duration (s)": f"{5.2 + (i*0.1):.2f}"
+            "Duration (s)": f"{5.2 + ((i % 10)*0.3):.2f}"
         })
     generate_excel_report(sample)

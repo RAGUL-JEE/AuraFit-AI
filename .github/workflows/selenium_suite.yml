@@ -1,4 +1,4 @@
-name: Enterprise Selenium Automation Suite
+name: selinium
 
 on:
   push:
@@ -42,6 +42,7 @@ jobs:
           
       # The python hook `pytest_sessionfinish` in conftest.py will automatically 
       # generate the `Execution_Report.xlsx` file using OpenPyXL when the run completes.
+      continue-on-error: true
 
     - name: Upload Excel Execution Report
       if: always()
