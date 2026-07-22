@@ -39,6 +39,22 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: Performance-Excel-Report
-        path: performance_testing/reports/Performance_Execution_Report.xlsx
+        name: Enterprise-Security-Excel-Report
+        path: performance_testing/reports/Performance_Report.xlsx
+        retention-days: 14
+
+    - name: Upload HTML Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Enterprise-HTML-Report
+        path: performance_testing/reports/Performance_Report.html
+        retention-days: 14
+        
+    - name: Upload Execution Logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Enterprise-Execution-Logs
+        path: performance_testing/logs/execution.log
         retention-days: 14

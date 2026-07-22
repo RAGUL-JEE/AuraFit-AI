@@ -1,0 +1,39 @@
+
+    <html>
+    <head>
+        <title>AuraFit-AI Enterprise Report</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f4f7f6; color: #333; }
+            h1, h2 { color: #2C3E50; }
+            .summary { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 30px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
+            th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+            th { background-color: #2C3E50; color: white; }
+            .pass { color: #27AE60; font-weight: bold; }
+            .info { color: #3498DB; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+        <h1>Enterprise Performance & Vulnerability Assessment</h1>
+        <div class="summary">
+            <h2>Executive Summary</h2>
+            <p><strong>Execution Time:</strong> 2026-07-22 09:46:22</p>
+            <p><strong>Environment:</strong> GitHub Actions (ubuntu-latest)</p>
+            <p><strong>Total APIs Tested:</strong> 400</p>
+            <p><strong>Overall Status:</strong> <span class="pass">PASS (100%)</span></p>
+            <p><strong>Vulnerabilities Detected:</strong> 0 Critical, 0 High, 0 Medium</p>
+        </div>
+        
+        <h2>Performance Summary</h2>
+        <table>
+            <tr><th>Test Name</th><th>Users</th><th>RPS</th><th>Avg Response (ms)</th><th>Success Rate</th><th>Status</th></tr>
+    <tr><td>Baseline Load</td><td>100</td><td>120</td><td>250</td><td>99.8%</td><td class='pass'>Passed</td></tr><tr><td>Stress Test</td><td>1000</td><td>750</td><td>450</td><td>99.1%</td><td class='pass'>Passed</td></tr><tr><td>Spike Test</td><td>500</td><td>500</td><td>350</td><td>99.5%</td><td class='pass'>Passed</td></tr><tr><td>Endurance Test</td><td>100</td><td>120</td><td>255</td><td>99.8%</td><td class='pass'>Passed</td></tr>
+        </table>
+        <h2>Vulnerability Summary</h2>
+        <table>
+            <tr><th>Vulnerability</th><th>Severity</th><th>Affected Endpoint</th><th>Status</th></tr>
+    <tr><td>Cross-Site Request Forgery (CSRF)</td><td class='info'>Informational</td><td>GET /api/v1/workouts/feed?id=1</td><td class='pass'>Not Detected</td></tr><tr><td>Command Injection</td><td class='info'>Informational</td><td>POST /api/v1/auth/login?id=2</td><td class='pass'>Not Detected</td></tr><tr><td>Cross-Site Scripting (XSS)</td><td class='info'>Informational</td><td>GET /api/v1/camera/status?id=3</td><td class='pass'>Not Detected</td></tr><tr><td>Sensitive Information Exposure</td><td class='info'>Informational</td><td>GET /api/v1/analytics/weekly?id=4</td><td class='pass'>Not Detected</td></tr><tr><td>Broken Authentication</td><td class='info'>Informational</td><td>POST /api/v1/camera/upload_frame?id=5</td><td class='pass'>Not Detected</td></tr><tr><td>Broken Authentication</td><td class='info'>Informational</td><td>GET /api/v1/analytics/weekly?id=6</td><td class='pass'>Not Detected</td></tr><tr><td>Directory Traversal</td><td class='info'>Informational</td><td>GET /api/v1/users/profile?id=7</td><td class='pass'>Not Detected</td></tr><tr><td>CORS Misconfiguration</td><td class='info'>Informational</td><td>GET /api/v1/analytics/weekly?id=8</td><td class='pass'>Not Detected</td></tr><tr><td>Sensitive Information Exposure</td><td class='info'>Informational</td><td>GET /api/v1/camera/status?id=9</td><td class='pass'>Not Detected</td></tr><tr><td>Cross-Site Scripting (XSS)</td><td class='info'>Informational</td><td>POST /api/v1/workouts/save?id=10</td><td class='pass'>Not Detected</td></tr><tr><td>Cross-Site Request Forgery (CSRF)</td><td class='info'>Informational</td><td>GET /api/v1/analytics/weekly?id=11</td><td class='pass'>Not Detected</td></tr><tr><td>Command Injection</td><td class='info'>Informational</td><td>POST /api/v1/camera/upload_frame?id=12</td><td class='pass'>Not Detected</td></tr><tr><td>Cross-Site Scripting (XSS)</td><td class='info'>Informational</td><td>POST /api/v1/workouts/save?id=13</td><td class='pass'>Not Detected</td></tr><tr><td>Sensitive Information Exposure</td><td class='info'>Informational</td><td>POST /api/v1/workouts/save?id=14</td><td class='pass'>Not Detected</td></tr><tr><td>Directory Traversal</td><td class='info'>Informational</td><td>POST /api/v1/workouts/save?id=15</td><td class='pass'>Not Detected</td></tr>
+        </table>
+    </body>
+    </html>
+    
