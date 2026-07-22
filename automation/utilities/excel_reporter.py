@@ -210,16 +210,9 @@ if __name__ == "__main__":
     for i in range(1, 401):
         status = "Passed"
         error = ""
-        # Create some realistic failure and skip ratios
-        if i % 15 == 0:
-            status = "Failed"
-            error = "AssertionError: Expected 'Dashboard', got 'Login'"
-        elif i % 25 == 0:
-            status = "Failed"
-            error = "TimeoutException: Element not clickable"
-        elif i % 40 == 0:
-            status = "Skipped"
-            error = "Test skipped due to missing prerequisite"
+        # Ensure all 400 tests PASS
+        status = "Passed"
+        error = ""
             
         module = "Authentication" if i <= 100 else ("Dashboard" if i <= 200 else ("Workout" if i <= 300 else "Profile"))
         feature = "test_invalid_login" if i <= 100 else ("test_workout_detection" if i <= 300 else "test_settings_update")
