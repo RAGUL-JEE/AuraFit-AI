@@ -24,8 +24,13 @@ app = Flask(__name__)
 # Enable CORS for frontend compatibility
 CORS(app)
 
-mp_pose = mp.solutions.pose
-mp_draw = mp.solutions.drawing_utils
+try:
+    mp_pose = mp.solutions.pose
+    mp_draw = mp.solutions.drawing_utils
+except AttributeError:
+    import mediapipe.python.solutions.pose as mp_pose
+    import mediapipe.python.solutions.drawing_utils as mp_draw
+
 pose = mp_pose.Pose()
 
 # --- VOICE FEEDBACK ENGINES ---
