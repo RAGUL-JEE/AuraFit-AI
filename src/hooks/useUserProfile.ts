@@ -155,13 +155,37 @@ export function useUserProfile() {
   };
 
   useEffect(() => {
+    // 1. Listen for local optimistic updates
     const handler = (e: any) => {
       if (e && e.detail) {
         setProfile(e.detail);
       }
     };
     window.addEventListener('user_profile_updated', handler as EventListener);
-    return () => window.removeEventListener('user_profile_updated', handler as EventListener);
+
+    // 2. Subscribe to Realtime Supabase Profile changes
+    let channel: any = null;
+    const setupRealtime = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { subscribeToProfile } = await import('../lib/supabaseSync');
+        channel = subscribeToProfile(session.user.id, (payload) => {
+          // When a profile update happens on another device, update our local state
+          setProfile(prev => {
+            const newMapped = mapSupabaseToProfile(payload, session.user.email || '');
+            const updated = { ...prev, ...newMapped };
+            localStorage.setItem('user_profile', JSON.stringify(updated));
+            return updated;
+          });
+        });
+      }
+    };
+    setupRealtime();
+
+    return () => {
+      window.removeEventListener('user_profile_updated', handler as EventListener);
+      if (channel) channel.unsubscribe();
+    };
   }, []);
 
   return { profile, updateProfile };

@@ -2,12 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Video, Clock, Cpu, Book } from 'lucide-react-native';
-import Constants from 'expo-constants';
 import GlobalHeader from '../components/GlobalHeader';
+import { CONFIG } from '../lib/config';
 
-const hostUri = Constants.expoConfig?.hostUri;
-const localIp = hostUri ? hostUri.split(':')[0] : '192.168.1.100';
-const imageBaseUrl = `http://${localIp}:5173`;
+const imageBaseUrl = CONFIG.ASSET_URL;
 
 const { width } = Dimensions.get('window');
 

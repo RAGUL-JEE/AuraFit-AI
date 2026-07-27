@@ -24,6 +24,7 @@ import {
   X 
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 const DRAWER_WIDTH = width * 0.75;
@@ -41,6 +42,7 @@ export default function GlobalHeader({ title, subtitle, rightContent }: GlobalHe
   const navigation = useNavigation<any>();
   const route = useRoute();
   const insets = useSafeAreaInsets();
+  const { logout } = useAuth();
 
   const toggleDrawer = () => {
     if (isOpen) {
@@ -156,7 +158,18 @@ export default function GlobalHeader({ title, subtitle, rightContent }: GlobalHe
                 <Settings color="#cbd5e1" size={20} />
                 <Text style={styles.drawerItemText}>Settings</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.drawerItem, { marginTop: 10 }]} onPress={() => navigateTo('Login')}>
+              <TouchableOpacity 
+                style={[styles.drawerItem, { marginTop: 10 }]} 
+                onPress={async () => {
+                  // Close drawer first, then sign out.
+                  // AuthContext.onAuthStateChange will automatically
+                  // switch the navigator to the Login screen.
+                  toggleDrawer();
+                  setTimeout(async () => {
+                    await logout();
+                  }, 300);
+                }}
+              >
                 <LogOut color="#ef4444" size={20} />
                 <Text style={[styles.drawerItemText, { color: '#ef4444' }]}>Logout</Text>
               </TouchableOpacity>

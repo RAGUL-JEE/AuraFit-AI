@@ -18,13 +18,7 @@ const particles = Array.from({ length: 15 }).map((_, i) => ({
 }));
 
 export default function SplashScreen({ navigation }: any) {
-  useEffect(() => {
-    // Navigate to Login after 3 seconds
-    const timer = setTimeout(() => {
-      navigation.replace('Login');
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [navigation]);
+
 
   return (
     <View style={styles.container}>

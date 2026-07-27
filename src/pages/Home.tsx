@@ -148,7 +148,7 @@ export function Home({ onNavigate }: { onNavigate?: (tab: string) => void }) {
           playsInline
         >
           <source
-            src="/videos/home-hero.mp4"
+            src="https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/home%20page%20video.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9ob21lIHBhZ2UgdmlkZW8ubXA0Iiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NTE0NTU2NSwiZXhwIjoxOTQyODI1NTY1fQ.3a_0Rl76h6mYCjkr8ANU9fM_-QdgiCkLcPC7ljtOQcM"
             type="video/mp4"
           />
         </video>

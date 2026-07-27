@@ -3,6 +3,10 @@ export interface ExerciseData {
   title: string;
   muscle: string;
   image: string;
+  steps?: Array<{ title: string; desc: string } | string>;
+  mistakes?: string[];
+  level?: string;
+  category?: string;
 }
 
 export interface WorkoutSession {

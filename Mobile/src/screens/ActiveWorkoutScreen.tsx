@@ -1,27 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Image, Linking, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView, Image, Linking, Dimensions, Modal } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import GlobalHeader from '../components/GlobalHeader';
 import AnimatedCounter from '../components/animations/AnimatedCounter';
 import TouchScale from '../components/animations/TouchScale';
 import { useDashboard } from '../context/DashboardContext';
-import { ArrowLeft, Search, BrainCircuit, AlertCircle, ExternalLink, Minus, Plus, ChevronUp, Play, Square, Save, PlayCircle, Activity, Video as VideoIcon } from 'lucide-react-native';
+import { useWorkoutHistory } from '../hooks/useWorkoutHistory';
+import { useFavorites } from '../hooks/useFavorites';
+import { useSchedule } from '../hooks/useSchedule';
+import { ArrowLeft, Search, BrainCircuit, AlertCircle, ExternalLink, Minus, Plus, ChevronUp, Play, Square, Save, PlayCircle, Activity, Video as VideoIcon, Heart, Calendar, X } from 'lucide-react-native';
 import { WORKOUT_DETAILS } from '../data/workoutDetails';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import Constants from 'expo-constants';
 import * as Speech from 'expo-speech';
 
-const BACKEND_URL = 'http://192.168.1.5:5001';
+import { CONFIG } from '../lib/config';
+
+const BACKEND_URL = CONFIG.DETECTION_URL;
 const { width, height } = Dimensions.get('window');
 
 export default function ActiveWorkoutScreen({ route, navigation }: any) {
   const { workoutId } = route.params || { workoutId: 'pushup' };
   const details = WORKOUT_DETAILS[workoutId] || WORKOUT_DETAILS['pushup'];
-  const { dashboardData, updateDashboard } = useDashboard();
+  const { dashboardData, updateDashboard, refreshFromSupabase } = useDashboard();
+  const { addSession } = useWorkoutHistory();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { schedule, addWorkout } = useSchedule();
   
-  const videoBaseUrl = 'https://egeahlmqxbzqeiqsrobq.supabase.co/storage/v1/object/public/videos';
-  const videoSource = details?.video?.localVideoName ? `${videoBaseUrl}/${details.video.localVideoName}` : null;
+  const [isScheduleModalVisible, setIsScheduleModalVisible] = useState(false);
+  const [isSummaryModalVisible, setIsSummaryModalVisible] = useState(false);
+  
+  const videoBaseUrl = `${CONFIG.SUPABASE_URL}/storage/v1/object/public/videos`;
+  const videoSource = details?.video?.url || details?.video?.videoUrl || (details?.video?.localVideoName ? `${videoBaseUrl}/${details.video.localVideoName}` : null);
   const player = useVideoPlayer(videoSource, player => {
     player.loop = true;
   });
@@ -148,7 +159,7 @@ export default function ActiveWorkoutScreen({ route, navigation }: any) {
           
           if (data.completed) {
             stopDetection();
-            Alert.alert("Workout Complete", "Great job!");
+            setIsSummaryModalVisible(true);
           }
         }
       }
@@ -180,7 +191,13 @@ export default function ActiveWorkoutScreen({ route, navigation }: any) {
           subtitle="LAB-GRADE PERFORMANCE"
           rightContent={
             <>
-              <Search color="#111" size={22} style={{ marginRight: 15 }} />
+              <TouchableOpacity onPress={() => toggleFavorite(workoutId)} style={{ marginRight: 15 }}>
+                <Heart 
+                  color={isFavorite(workoutId) ? "#ef4444" : "#111"} 
+                  size={24} 
+                  fill={isFavorite(workoutId) ? "#ef4444" : "transparent"} 
+                />
+              </TouchableOpacity>
               <View style={styles.avatarPlaceholder} />
             </>
           }
@@ -265,48 +282,20 @@ export default function ActiveWorkoutScreen({ route, navigation }: any) {
               <Play color="#111" size={20} fill="#111" />
               <Text style={styles.playBtnText}>START</Text>
             </TouchScale>
-            <TouchScale style={styles.stopBtn} onPress={stopDetection}>
+            <TouchScale style={styles.stopBtn} onPress={() => { stopDetection(); setIsSummaryModalVisible(true); }}>
               <Square color="#111" size={20} fill="#111" />
               <Text style={styles.stopBtnText}>STOP</Text>
             </TouchScale>
-            <TouchScale 
-              style={styles.saveBtn}
-              onPress={async () => {
-                stopDetection();
-                try {
-                  await fetch(`${BACKEND_URL}/api/save`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      workout: workoutId,
-                      reps: stats.reps,
-                      calories: stats.calories,
-                      time: stats.time,
-                      sets: stats.sets,
-                      accuracy: stats.accuracy
-                    })
-                  });
-                  
-                  // Update local mobile dashboard context
-                  await updateDashboard({
-                    workoutsCompleted: dashboardData.workoutsCompleted + 1,
-                    caloriesBurned: dashboardData.caloriesBurned + stats.calories,
-                    averageAccuracy: dashboardData.averageAccuracy === 0 
-                      ? stats.accuracy 
-                      : Math.round((dashboardData.averageAccuracy + stats.accuracy) / 2)
-                  });
-                  
-                } catch (e) {
-                  console.log("Error saving workout to DB", e);
-                }
-                Alert.alert("Workout Saved", "Your progress has been synced!");
-                navigation.navigate('Progress');
-              }}
-            >
-              <Save color="#fff" size={20} />
-              <Text style={styles.saveBtnText}>SAVE</Text>
-            </TouchScale>
+
           </View>
+          
+          <TouchScale 
+            style={styles.scheduleWorkoutBtn}
+            onPress={() => setIsScheduleModalVisible(true)}
+          >
+            <Calendar color="#8b5cf6" size={20} />
+            <Text style={styles.scheduleWorkoutBtnText}>Schedule Workout</Text>
+          </TouchScale>
         </View>
 
         {/* WORKOUT DETAILS (SCROLLABLE CONTENT) */}
@@ -320,7 +309,7 @@ export default function ActiveWorkoutScreen({ route, navigation }: any) {
             </View>
             
             <View style={styles.referenceVideoBox}>
-              {details?.video?.localVideoName ? (
+              {videoSource ? (
                 <VideoView
                   player={player}
                   style={styles.localVideoPlayer}
@@ -387,11 +376,135 @@ export default function ActiveWorkoutScreen({ route, navigation }: any) {
             ))}
           </ScrollView>
 
-          {/* Bottom Padding for Navigation Bar */}
+        {/* Bottom Padding for Navigation Bar */}
           <View style={{ height: 100 }} />
         </View>
 
       </ScrollView>
+
+      {/* Schedule Modal */}
+      <Modal visible={isScheduleModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Schedule Workout</Text>
+              <TouchableOpacity onPress={() => setIsScheduleModalVisible(false)}>
+                <Text style={styles.closeBtnText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.modalSubtitle}>Select a day to schedule {details.title}</Text>
+            
+            <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => {
+                const alreadyScheduled = (schedule[day] || []).some(r => r.workout_id === workoutId);
+                return (
+                  <TouchableOpacity
+                    key={day}
+                    style={[styles.modalDayRow, alreadyScheduled && styles.modalDayRowDisabled]}
+                    disabled={alreadyScheduled}
+                    onPress={async () => {
+                      setIsScheduleModalVisible(false);
+                      await addWorkout(day, workoutId, details.title);
+                      Alert.alert('Scheduled', `${details.title} has been added to your ${day} schedule.`);
+                    }}
+                  >
+                    <Text style={styles.modalDayText}>{day}</Text>
+                    {alreadyScheduled ? (
+                      <Text style={styles.alreadyScheduledText}>Already scheduled</Text>
+                    ) : (
+                      <View style={styles.modalAddBtn}>
+                        <Plus color="#fff" size={16} />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ── Summary Modal ── */}
+      <Modal
+        visible={isSummaryModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsSummaryModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.summaryModalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Workout Summary</Text>
+            </View>
+            <Text style={styles.modalSubtitle}>Review your performance</Text>
+            
+            <View style={styles.summaryGrid}>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryLabel}>Total Reps</Text>
+                <Text style={styles.summaryValue}>{stats.reps}</Text>
+              </View>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryLabel}>Total Sets</Text>
+                <Text style={styles.summaryValue}>{stats.sets}</Text>
+              </View>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryLabel}>Calories</Text>
+                <Text style={styles.summaryValue}>{stats.calories} <Text style={{fontSize: 10}}>kcal</Text></Text>
+              </View>
+              <View style={styles.summaryItem}>
+                <Text style={styles.summaryLabel}>Duration</Text>
+                <Text style={styles.summaryValue}>{formatTime(stats.time)}</Text>
+              </View>
+              <View style={[styles.summaryItem, { width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+                <Text style={styles.summaryLabel}>Accuracy Score</Text>
+                <Text style={[styles.summaryValue, { color: '#059669' }]}>{stats.accuracy}%</Text>
+              </View>
+            </View>
+
+            <View style={styles.summaryActions}>
+              <TouchScale 
+                style={styles.discardBtn}
+                onPress={() => {
+                  setIsSummaryModalVisible(false);
+                  setStats(prev => ({...prev, reps:0, sets:1, calories:0, time:0, accuracy:0, completed: false}));
+                }}
+              >
+                <Text style={styles.discardBtnText}>Discard</Text>
+              </TouchScale>
+
+              <TouchScale 
+                style={styles.confirmSaveBtn}
+                onPress={async () => {
+                  setIsSummaryModalVisible(false);
+                  try {
+                    await fetch(`${BACKEND_URL}/api/save`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        workout: workoutId, reps: stats.reps, calories: stats.calories, time: stats.time, sets: stats.sets, accuracy: stats.accuracy
+                      })
+                    }).catch(e => console.log('Detection backend save error (non-fatal):', e));
+
+                    await addSession({
+                      exerciseId: workoutId, reps: stats.reps, sets: stats.sets, calories: stats.calories, durationSeconds: stats.time, accuracy: stats.accuracy,
+                    });
+
+                    await refreshFromSupabase();
+                  } catch (e) {
+                    console.log('Error saving workout:', e);
+                  }
+                  Alert.alert('Workout Saved', 'Your progress has been synced!');
+                  navigation.navigate('Progress');
+                }}
+              >
+                <Text style={styles.confirmSaveBtnText}>Save Workout</Text>
+              </TouchScale>
+            </View>
+
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -503,4 +616,33 @@ const styles = StyleSheet.create({
   mistakeIcon: { marginRight: 15, marginTop: 2 },
   mistakeName: { fontSize: 16, fontWeight: '800', color: '#1e293b', marginBottom: 4 },
   mistakeDesc: { fontSize: 14, color: '#64748b', lineHeight: 20 },
+
+  // Schedule Workout Button
+  scheduleWorkoutBtn: { backgroundColor: '#f3e8ff', borderRadius: 12, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 14, marginTop: 10, borderWidth: 1, borderColor: '#e9d5ff' },
+  scheduleWorkoutBtnText: { color: '#7c3aed', fontWeight: '800', marginLeft: 8, fontSize: 14 },
+
+  // Modal Styles
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: height * 0.8 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 },
+  modalTitle: { fontSize: 20, fontWeight: '800', color: '#111' },
+  closeBtnText: { color: '#ef4444', fontWeight: '700', fontSize: 16 },
+  modalSubtitle: { color: '#64748b', fontSize: 14, marginBottom: 15 },
+  modalDayRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
+  modalDayRowDisabled: { opacity: 0.5 },
+  modalDayText: { fontSize: 16, fontWeight: '700', color: '#1e293b' },
+  alreadyScheduledText: { fontSize: 12, color: '#64748b', fontStyle: 'italic' },
+  modalAddBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#8b5cf6', justifyContent: 'center', alignItems: 'center' },
+
+  // Summary Modal Specific
+  summaryModalContent: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 },
+  summaryGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 10, marginBottom: 25 },
+  summaryItem: { width: '48%', backgroundColor: '#f8fafc', padding: 15, borderRadius: 12, borderWidth: 1, borderColor: '#f1f5f9' },
+  summaryLabel: { fontSize: 11, fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: 4 },
+  summaryValue: { fontSize: 24, fontWeight: '800', color: '#111' },
+  summaryActions: { flexDirection: 'row', gap: 12 },
+  discardBtn: { flex: 1, paddingVertical: 16, borderRadius: 16, backgroundColor: '#fff', borderWidth: 1, borderColor: '#e2e8f0', alignItems: 'center' },
+  discardBtnText: { fontSize: 14, fontWeight: '800', color: '#64748b' },
+  confirmSaveBtn: { flex: 1, paddingVertical: 16, borderRadius: 16, backgroundColor: '#0f172a', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8 },
+  confirmSaveBtnText: { fontSize: 14, fontWeight: '800', color: '#fff' },
 });

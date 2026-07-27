@@ -19,7 +19,7 @@ export default defineConfig(() => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
         '/api/detection': {
-          target: 'http://localhost:5001',
+          target: 'http://127.0.0.1:5001',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api\/detection/, ''),
           configure: (proxy, _options) => {
@@ -34,7 +34,7 @@ export default defineConfig(() => {
           },
         },
         '/api': {
-          target: 'http://localhost:5000',
+          target: 'http://127.0.0.1:5000',
           changeOrigin: true,
           configure: (proxy, _options) => {
             proxy.removeAllListeners('error');

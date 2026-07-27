@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Award, Download, Droplet, Dumbbell, Flame, Moon, Zap } from 'lucide-react';
+import { Award, Download, Droplet, Dumbbell, Flame, Moon, Zap, Trash2, Edit2, X, Check } from 'lucide-react';
 import { useWorkoutHistory } from '../hooks/useWorkoutHistory';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { motion, AnimatePresence } from 'motion/react';
@@ -33,16 +33,18 @@ function StatIconBadge({
 }
 
 export function Progress() {
-  const { history, totalWorkouts, totalCalories, streak, addSession } = useWorkoutHistory();
+  const { history, totalWorkouts, totalCalories, streak, addSession, deleteSession, updateSession } = useWorkoutHistory();
   const { profile, updateProfile } = useUserProfile();
 
   const [activeWeeklyTab, setActiveWeeklyTab] = useState<'activity' | 'calories'>('activity');
+  const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ reps: 0, sets: 0, calories: 0, accuracy: 0 });
+  
   const weight = profile.weight;
   const height = profile.height;
   const setWeight = (val: number) => updateProfile({ weight: val });
   const setHeight = (val: number) => updateProfile({ height: val });
 
-  // Live BMI calculation
   const bmi = useMemo(() => {
     const heightInM = height / 100;
     return heightInM > 0 ? parseFloat((weight / (heightInM * heightInM)).toFixed(1)) : 0;
@@ -55,7 +57,6 @@ export function Progress() {
     return { text: 'Obese Range', color: 'text-red-500 bg-red-500/15 border-red-500/35' };
   }, [bmi]);
 
-  // Process real-time weekly activity based on user workout performance
   const weeklyActivityData = useMemo(() => {
     const daysOfWeek = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
     const dataByDay: Record<string, { duration: number; calories: number; count: number; totalAcc: number }> = {};
@@ -86,8 +87,8 @@ export function Progress() {
       }
     });
 
-    const durationTarget = 30; // 30 mins
-    const caloriesTarget = 400; // 400 kcal
+    const durationTarget = 30;
+    const caloriesTarget = 400;
 
     return daysOfWeek.map(day => {
       const stats = dataByDay[day];
@@ -175,6 +176,24 @@ export function Progress() {
     document.body.appendChild(dlAnchor);
     dlAnchor.click();
     dlAnchor.remove();
+  };
+
+  const startEditWorkout = (workout: any) => {
+    setEditingWorkoutId(workout.id);
+    setEditForm({ reps: workout.reps, sets: workout.sets, calories: workout.calories, accuracy: workout.accuracy });
+  };
+
+  const saveEditWorkout = async (workout: any) => {
+    if (updateSession) {
+      await updateSession({ ...workout, ...editForm });
+    }
+    setEditingWorkoutId(null);
+  };
+
+  const handleDeleteWorkout = async (id: string) => {
+    if (deleteSession) {
+      await deleteSession(id);
+    }
   };
 
   // Process data for chart - last 30 days
@@ -740,6 +759,71 @@ export function Progress() {
                </div>
             </div>
           </div>
+        </div>
+      </div>
+      
+      {/* Recent Workouts History */}
+      <div className="mt-6">
+        <h3 className="text-2xl font-bold text-primary mb-4 tracking-tight">Recent Workouts</h3>
+        <div className="theme-card shadow-sm overflow-hidden">
+          {history.length > 0 ? (
+            <div className="divide-y divide-outline-variant/50">
+              {history.map((workout) => (
+                <div key={workout.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-surface-variant/30 transition-colors">
+                  <div className="flex flex-col">
+                    <span className="font-bold text-primary capitalize">{workout.exerciseId.replace('-', ' ')}</span>
+                    <span className="text-xs text-on-surface-variant">{new Date(workout.date).toLocaleString()}</span>
+                  </div>
+                  
+                  {editingWorkoutId === workout.id ? (
+                    <div className="flex items-center gap-2 text-sm bg-background p-2 rounded-lg border border-outline-variant">
+                      <div className="flex flex-col">
+                        <label className="text-[10px] text-on-surface-variant">Reps</label>
+                        <input type="number" className="w-16 bg-transparent border-b outline-none text-primary" value={editForm.reps} onChange={(e) => setEditForm({...editForm, reps: Number(e.target.value)})} />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-[10px] text-on-surface-variant">Sets</label>
+                        <input type="number" className="w-16 bg-transparent border-b outline-none text-primary" value={editForm.sets} onChange={(e) => setEditForm({...editForm, sets: Number(e.target.value)})} />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-[10px] text-on-surface-variant">Cal</label>
+                        <input type="number" className="w-16 bg-transparent border-b outline-none text-primary" value={editForm.calories} onChange={(e) => setEditForm({...editForm, calories: Number(e.target.value)})} />
+                      </div>
+                      <div className="flex gap-2 ml-2">
+                        <button onClick={() => saveEditWorkout(workout)} className="p-1.5 bg-emerald-500/20 text-emerald-500 rounded hover:bg-emerald-500/30">
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => setEditingWorkoutId(null)} className="p-1.5 bg-red-500/20 text-red-500 rounded hover:bg-red-500/30">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-6">
+                      <div className="flex gap-4 text-sm font-medium text-primary">
+                        <div className="flex flex-col items-center"><span className="text-[10px] text-on-surface-variant uppercase">Reps</span>{workout.reps}</div>
+                        <div className="flex flex-col items-center"><span className="text-[10px] text-on-surface-variant uppercase">Sets</span>{workout.sets}</div>
+                        <div className="flex flex-col items-center"><span className="text-[10px] text-on-surface-variant uppercase">Cal</span>{workout.calories}</div>
+                        <div className="flex flex-col items-center"><span className="text-[10px] text-on-surface-variant uppercase">Acc</span>{workout.accuracy}%</div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => startEditWorkout(workout)} className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-full transition-colors">
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDeleteWorkout(workout.id)} className="p-2 text-error hover:bg-error/10 rounded-full transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center text-on-surface-variant">
+              No workout history found. Start training to see your history!
+            </div>
+          )}
         </div>
       </div>
     </div>

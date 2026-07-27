@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { User, Mail, Award, MapPin, Calendar, Edit3, Shield, Info, Save, X, Phone, Target, Flame, Dumbbell, Activity, Camera } from 'lucide-react';
 import { useUserProfile, UserProfile } from '../hooks/useUserProfile';
 import { useWorkoutHistory } from '../hooks/useWorkoutHistory';
+import { useToast } from '../components/Toast';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Profile() {
   const { profile, updateProfile } = useUserProfile();
   const { totalWorkouts, totalCalories, streak, avgAccuracy } = useWorkoutHistory();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UserProfile>(profile);
+  const toast = useToast();
+  const { session } = useAuth();
 
   // Dynamic stats calculated from active history, falling back to default stats if no workouts recorded
   const activeWorkouts = totalWorkouts > 0 ? totalWorkouts : profile.stats.workoutsDone;
@@ -42,6 +46,34 @@ export function Profile() {
       bodyFat: parseFloat(formData.bodyFat as unknown as string) || profile.bodyFat,
     });
     setIsEditing(false);
+  };
+
+  const handleSendReport = async () => {
+    if (!session?.user?.email) {
+      toast.error('No email address found.');
+      return;
+    }
+    toast.success('Sending weekly progress report...');
+    try {
+      const res = await fetch('/api/email/weekly-progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: session.user.email,
+          name: profile.fullName || session.user.email.split('@')[0],
+          progressStats: {
+            totalWorkouts: activeWorkouts,
+            totalCalories: activeCalories,
+            streak: activeStreak,
+            avgAccuracy: activeAccuracy
+          }
+        })
+      });
+      if (!res.ok) throw new Error('Failed to send report');
+      toast.success('Weekly report sent to your email!');
+    } catch (err) {
+      toast.error('Error sending weekly report');
+    }
   };
 
   const heightInMeters = profile.height / 100;
@@ -156,12 +188,20 @@ export function Profile() {
                   </button>
                 </div>
               ) : (
-                <button 
-                  onClick={() => { setFormData(profile); setIsEditing(true); }} 
-                  className="px-6 py-2.5 bg-white text-black font-bold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer"
-                >
-                  Edit Profile
-                </button>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={handleSendReport} 
+                    className="px-4 py-2.5 bg-transparent border border-white/20 text-white font-bold rounded-xl hover:bg-white/10 active:scale-95 transition-all shadow-sm cursor-pointer flex items-center gap-2"
+                  >
+                    <Mail className="w-4 h-4" /> Report
+                  </button>
+                  <button 
+                    onClick={() => { setFormData(profile); setIsEditing(true); }} 
+                    className="px-6 py-2.5 bg-white text-black font-bold rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer"
+                  >
+                    Edit Profile
+                  </button>
+                </div>
               )}
             </div>
           </div>

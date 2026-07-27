@@ -35,6 +35,8 @@ export function useUserProfile() {
   const [profile, setProfile] = useState<UserProfile>(defaultProfile);
 
   useEffect(() => {
+    let channel: any = null;
+
     const loadProfile = async () => {
       try {
         const stored = await AsyncStorage.getItem('user_profile');
@@ -44,8 +46,45 @@ export function useUserProfile() {
       } catch (e) {
         console.error('Failed to load profile', e);
       }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { subscribeToProfile } = await import('../lib/supabaseSync');
+        channel = subscribeToProfile(session.user.id, (payload) => {
+          setProfile(prev => {
+            const mapped = {
+              fullName: payload.full_name || prev.fullName,
+              username: payload.username || prev.username,
+              email: payload.email || prev.email,
+              phoneNumber: payload.phone_number || prev.phoneNumber,
+              location: payload.location || prev.location,
+              age: payload.age ? Number(payload.age) : prev.age,
+              weight: payload.weight ? Number(payload.weight) : prev.weight,
+              height: payload.height ? Number(payload.height) : prev.height,
+              bodyFat: payload.body_fat ? Number(payload.body_fat) : prev.bodyFat,
+              fitnessGoal: payload.fitness_goal || prev.fitnessGoal,
+              bio: payload.bio || prev.bio,
+              avatarUrl: payload.avatar_url || prev.avatarUrl,
+              joinedDate: payload.joined_date || prev.joinedDate,
+              cameraEnabled: payload.camera_enabled ?? prev.cameraEnabled,
+              audioFeedback: payload.audio_feedback ?? prev.audioFeedback,
+              darkMode: payload.dark_mode ?? prev.darkMode,
+              notifications: payload.notifications ?? prev.notifications,
+              dataSync: payload.data_sync ?? prev.dataSync,
+              aiSensitivity: payload.ai_sensitivity || prev.aiSensitivity,
+            };
+            const updated = { ...prev, ...mapped };
+            AsyncStorage.setItem('user_profile', JSON.stringify(updated)).catch(()=>{});
+            return updated;
+          });
+        });
+      }
     };
     loadProfile();
+
+    return () => {
+      if (channel) channel.unsubscribe();
+    };
   }, []);
 
   const updateProfile = async (newProfile: Partial<UserProfile>) => {

@@ -9,27 +9,100 @@ import {
   Platform, 
   ScrollView,
   ActivityIndicator,
-  Image
+  Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, User, Hash } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import TouchScale from '../components/animations/TouchScale';
+import { supabase } from '../lib/supabaseClient';
+import { CONFIG } from '../lib/config';
 
 export default function LoginScreen({ navigation }: any) {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleSubmit = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter email and password');
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate 500ms network delay as per reference
-    setTimeout(() => {
+    try {
+      if (isSignUp) {
+        if (!fullName) {
+          Alert.alert('Error', 'Full Name is required for signup');
+          setIsLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              username: username || `@${email.split('@')[0]}_fit`,
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        if (data.user) {
+          const { error: dbError } = await supabase.from('users').insert({
+            id: data.user.id,
+            name: fullName,
+            email: email,
+          });
+          if (dbError) console.warn('Failed to insert user into public.users', dbError);
+        }
+
+        Alert.alert('Success', 'Account created successfully!');
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) throw error;
+        // Navigation to MainTabs is handled automatically by App.tsx observing AuthContext session
+      }
+    } catch (err: any) {
+      Alert.alert('Authentication Failed', err.message);
+    } finally {
       setIsLoading(false);
-      navigation.replace('MainTabs');
-    }, 500);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email address first');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${CONFIG.API_URL}/api/email/password-reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name: email.split('@')[0] })
+      });
+      
+      if (!res.ok) throw new Error('Failed to send reset email');
+      Alert.alert('Success', 'Password reset link sent to your email!');
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Error sending password reset link');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -49,8 +122,10 @@ export default function LoginScreen({ navigation }: any) {
             transition={{ type: 'timing', duration: 800 }}
             style={styles.header}
           >
-            <Text style={styles.title}>WELCOME BACK</Text>
-            <Text style={styles.subtitle}>Login to continue your performance journey.</Text>
+            <Text style={styles.title}>{isSignUp ? 'CREATE ACCOUNT' : 'WELCOME BACK'}</Text>
+            <Text style={styles.subtitle}>
+              {isSignUp ? 'Join the elite performance journey.' : 'Login to continue your performance journey.'}
+            </Text>
           </MotiView>
 
           <MotiView
@@ -59,6 +134,41 @@ export default function LoginScreen({ navigation }: any) {
             transition={{ type: 'timing', duration: 800, delay: 200 }}
             style={styles.formContainer}
           >
+            {isSignUp && (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>FULL NAME</Text>
+                  <View style={styles.inputContainer}>
+                    <User color="#94a3b8" size={20} style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Enter your full name"
+                      placeholderTextColor="#94a3b8"
+                      value={fullName}
+                      onChangeText={setFullName}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>USERNAME</Text>
+                  <View style={styles.inputContainer}>
+                    <Hash color="#94a3b8" size={20} style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Choose a username"
+                      placeholderTextColor="#94a3b8"
+                      value={username}
+                      onChangeText={setUsername}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                  </View>
+                </View>
+              </>
+            )}
+
             <View style={styles.inputGroup}>
               <Text style={styles.label}>EMAIL ADDRESS</Text>
               <View style={styles.inputContainer}>
@@ -79,9 +189,11 @@ export default function LoginScreen({ navigation }: any) {
             <View style={styles.inputGroup}>
               <View style={styles.passwordHeader}>
                 <Text style={styles.label}>PASSWORD</Text>
-                <TouchableOpacity>
-                  <Text style={styles.forgotText}>Forgot Password?</Text>
-                </TouchableOpacity>
+                {!isSignUp && (
+                  <TouchableOpacity onPress={handlePasswordReset}>
+                    <Text style={styles.forgotText}>Forgot Password?</Text>
+                  </TouchableOpacity>
+                )}
               </View>
               <View style={styles.inputContainer}>
                 <Lock color="#94a3b8" size={20} style={styles.inputIcon} />
@@ -106,36 +218,38 @@ export default function LoginScreen({ navigation }: any) {
               </View>
             </View>
 
-            <View style={styles.rememberRow}>
-              <TouchableOpacity 
-                style={styles.checkboxContainer}
-                onPress={() => setRememberMe(!rememberMe)}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
-                  {rememberMe && (
-                    <MotiView
-                      from={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: 'spring' }}
-                    >
-                      <View style={styles.checkmark} />
-                    </MotiView>
-                  )}
-                </View>
-                <Text style={styles.rememberText}>Remember me for 30 days</Text>
-              </TouchableOpacity>
-            </View>
+            {!isSignUp && (
+              <View style={styles.rememberRow}>
+                <TouchableOpacity 
+                  style={styles.checkboxContainer}
+                  onPress={() => setRememberMe(!rememberMe)}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.checkbox, rememberMe && styles.checkboxActive]}>
+                    {rememberMe && (
+                      <MotiView
+                        from={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: 'spring' }}
+                      >
+                        <View style={styles.checkmark} />
+                      </MotiView>
+                    )}
+                  </View>
+                  <Text style={styles.rememberText}>Remember me for 30 days</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             <TouchScale 
               style={styles.signInButton}
-              onPress={handleLogin}
+              onPress={handleSubmit}
               disabled={isLoading}
             >
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.signInButtonText}>Sign In</Text>
+                <Text style={styles.signInButtonText}>{isSignUp ? 'Create Account' : 'Sign In'}</Text>
               )}
             </TouchScale>
 
@@ -149,7 +263,11 @@ export default function LoginScreen({ navigation }: any) {
 
             <TouchScale 
               style={styles.googleButton}
-              onPress={() => {}} // Hook up Google Auth here later
+              onPress={async () => {
+                // In an Expo app, Google Sign In requires expo-auth-session or similar.
+                // We show an alert since it's beyond simple Supabase web OAuth.
+                Alert.alert("Google Auth", "Google Sign In requires native setup in Expo. Please use Email/Password.");
+              }}
             >
               <View style={styles.googleIconPlaceholder}>
                 <Text style={{fontWeight: 'bold', color: '#EA4335'}}>G</Text>
@@ -166,9 +284,11 @@ export default function LoginScreen({ navigation }: any) {
           transition={{ delay: 600, duration: 800 }}
           style={styles.footer}
         >
-          <Text style={styles.footerText}>Don't have an account? </Text>
-          <TouchableOpacity>
-            <Text style={styles.footerLink}>Sign Up</Text>
+          <Text style={styles.footerText}>
+            {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
+          </Text>
+          <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)}>
+            <Text style={styles.footerLink}>{isSignUp ? 'Login' : 'Sign Up'}</Text>
           </TouchableOpacity>
         </MotiView>
       </KeyboardAvoidingView>

@@ -5,9 +5,10 @@ export const WORKOUT_DETAILS: Record<string, any> = {
       title: 'How to Do a Push Up - Proper Form & Technique',
       channel: 'Calisthenics Movement',
       duration: '4:15',
-      thumbnail: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=600&auto=format&fit=crop', // placeholder man doing pushups
-      url: 'https://www.youtube.com/watch?v=IODxDxX7oi4',
-      localVideoName: 'mp4.mp4'
+      thumbnail: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=600&auto=format&fit=crop',
+      url: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/push%20up.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9wdXNoIHVwLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU2ODEsImV4cCI6MTk0MjgyNTY4MX0.9iEvHn_zGuqREAyLIyc7xcFSHmZ__UqJU-aA7LwRJq4',
+      videoUrl: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/push%20up.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9wdXNoIHVwLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU2ODEsImV4cCI6MTk0MjgyNTY4MX0.9iEvHn_zGuqREAyLIyc7xcFSHmZ__UqJU-aA7LwRJq4',
+      localVideoName: 'push up.mp4'
     },
     postures: [
       { label: 'STEP 1 — START', image: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop' },
@@ -36,8 +37,9 @@ export const WORKOUT_DETAILS: Record<string, any> = {
       channel: 'Squat University',
       duration: '5:20',
       thumbnail: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=600&auto=format&fit=crop',
-      url: 'https://www.youtube.com/watch?v=gcNh17Ckjgg',
-      localVideoName: 'tutorial_v_mp_.mp4'
+      url: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/Squat.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9TcXVhdC5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NzEyLCJleHAiOjE5NDI4MjU3MTJ9.ntV_SRtg3bOcM11OU4E8U7CCxM9ijnvRp5hV-Dti4yo',
+      videoUrl: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/Squat.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9TcXVhdC5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NzEyLCJleHAiOjE5NDI4MjU3MTJ9.ntV_SRtg3bOcM11OU4E8U7CCxM9ijnvRp5hV-Dti4yo',
+      localVideoName: 'Squat.mp4'
     },
     postures: [
       { label: 'STEP 1 — STAND', image: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' },
@@ -63,7 +65,8 @@ export const WORKOUT_DETAILS: Record<string, any> = {
       channel: 'Core Fitness',
       duration: '3:10',
       thumbnail: 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?q=80&w=600&auto=format&fit=crop',
-      url: 'https://www.youtube.com/watch?v=ASdvN_XEl_c',
+      url: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/plank.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9wbGFuay5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NjYzLCJleHAiOjE5NDI4MjU2NjN9.nTgiBxwQ0h0ROOOQqCRaDARj00Bk-SVMnQljYTNNOFk',
+      videoUrl: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/plank.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9wbGFuay5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NjYzLCJleHAiOjE5NDI4MjU2NjN9.nTgiBxwQ0h0ROOOQqCRaDARj00Bk-SVMnQljYTNNOFk',
       localVideoName: 'plank.mp4'
     },
     postures: [
@@ -87,7 +90,8 @@ export const WORKOUT_DETAILS: Record<string, any> = {
       channel: 'Leg Day Everyday',
       duration: '4:00',
       thumbnail: 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?q=80&w=600&auto=format&fit=crop',
-      url: 'https://www.youtube.com/watch?v=QOVaHwm-Q6U',
+      url: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/lunge.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9sdW5nZS5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NjMzLCJleHAiOjE5NDI4MjU2MzN9.Wn7AZCO2OlxIdUQswmeTfVh2WgGS8sP3wybm5c2fufE',
+      videoUrl: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/lunge.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9sdW5nZS5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NjMzLCJleHAiOjE5NDI4MjU2MzN9.Wn7AZCO2OlxIdUQswmeTfVh2WgGS8sP3wybm5c2fufE',
       localVideoName: 'lunge.mp4'
     },
     postures: [
@@ -112,8 +116,9 @@ export const WORKOUT_DETAILS: Record<string, any> = {
       channel: 'Barbell Brigade',
       duration: '6:30',
       thumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop',
-      url: 'https://www.youtube.com/watch?v=op9kVnSso6Q',
-      localVideoName: 'deadlift_tutorial_mp_.mp4'
+      url: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/dead%20lift.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9kZWFkIGxpZnQubXA0Iiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NTE0NTU0NSwiZXhwIjoxOTQyODI1NTQ1fQ.84G5doExrTuZo3Gyv4C5AkTzsMdRGmZ_ca3BLBlBaNM',
+      videoUrl: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/dead%20lift.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9kZWFkIGxpZnQubXA0Iiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NTE0NTU0NSwiZXhwIjoxOTQyODI1NTQ1fQ.84G5doExrTuZo3Gyv4C5AkTzsMdRGmZ_ca3BLBlBaNM',
+      localVideoName: 'dead lift.mp4'
     },
     postures: [
       { label: 'STEP 1 — SETUP', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop' },
@@ -138,8 +143,9 @@ export const WORKOUT_DETAILS: Record<string, any> = {
       channel: 'Cardio Kings',
       duration: '2:45',
       thumbnail: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=600&auto=format&fit=crop',
-      url: 'https://www.youtube.com/watch?v=nmwgirgXLYM',
-      localVideoName: 'mountain_climber_tutorial_mp_.mp4'
+      url: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/mountain%20climber.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9tb3VudGFpbiBjbGltYmVyLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU2NDgsImV4cCI6MTk0MjgyNTY0OH0.RjA52GRAcVacocAmque4_kts57-IOz0eXbsExD3vJVY',
+      videoUrl: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/mountain%20climber.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9tb3VudGFpbiBjbGltYmVyLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU2NDgsImV4cCI6MTk0MjgyNTY0OH0.RjA52GRAcVacocAmque4_kts57-IOz0eXbsExD3vJVY',
+      localVideoName: 'mountain climber.mp4'
     },
     postures: [
       { label: 'STEP 1 — PLANK', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=400&auto=format&fit=crop' },
@@ -163,8 +169,9 @@ export const WORKOUT_DETAILS: Record<string, any> = {
       channel: 'Athlean-X',
       duration: '5:45',
       thumbnail: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=600&auto=format&fit=crop',
-      url: 'https://www.youtube.com/watch?v=ykJmrZ5v0Oo',
-      localVideoName: 'bicep_curl.mp4'
+      url: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/bicep%20curl.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9iaWNlcCBjdXJsLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU1MjUsImV4cCI6MTk0MjgyNTUyNX0.9z11Gcycf9MNRWONcCozUg3QNYT6e2LylXJ2P326wDk',
+      videoUrl: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/bicep%20curl.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9iaWNlcCBjdXJsLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU1MjUsImV4cCI6MTk0MjgyNTUyNX0.9z11Gcycf9MNRWONcCozUg3QNYT6e2LylXJ2P326wDk',
+      localVideoName: 'bicep curl.mp4'
     },
     postures: [
       { label: 'STEP 1 — EXTENSION', image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' },
@@ -181,5 +188,144 @@ export const WORKOUT_DETAILS: Record<string, any> = {
       { title: 'Using momentum', desc: 'Avoid swinging your body; keep your torso perfectly still.' },
       { title: 'Elbows moving forward', desc: 'Lock elbows by your side; do not let them drift up.' }
     ]
+  },
+  shoulderpress: {
+    title: 'Shoulder Press',
+    video: {
+      title: 'Shoulder Press Tutorial',
+      channel: 'Athlean-X',
+      duration: '4:30',
+      thumbnail: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=600&auto=format&fit=crop',
+      url: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/shoulder%20press.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9zaG91bGRlciBwcmVzcy5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1Njk2LCJleHAiOjE5NDI4MjU2OTZ9.qgyDwkVoOabi1A9zgGddsdxKLTa12UTx1_Ylaj1Co5s',
+      videoUrl: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/shoulder%20press.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9zaG91bGRlciBwcmVzcy5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1Njk2LCJleHAiOjE5NDI4MjU2OTZ9.qgyDwkVoOabi1A9zgGddsdxKLTa12UTx1_Ylaj1Co5s',
+      localVideoName: 'shoulder press.mp4'
+    },
+    postures: [
+      { label: 'STEP 1 — SETUP', image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' },
+      { label: 'STEP 2 — PRESS', image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' }
+    ],
+    steps: [
+      { step: 1, title: 'Step 1', desc: 'Hold dumbbells at shoulder height with elbows bent.' },
+      { step: 2, title: 'Step 2', desc: 'Brace your core and keep spine neutral.' },
+      { step: 3, title: 'Step 3', desc: 'Press dumbbells upward overhead.' },
+      { step: 4, title: 'Step 4', desc: 'Lower slowly back to shoulder height.' }
+    ],
+    mistakes: [
+      { title: 'Arching lower back', desc: 'Keep your core engaged to prevent arching.' },
+      { title: 'Pressing forward', desc: 'Press directly overhead stacked over shoulders.' }
+    ]
+  },
+  benchpress: {
+    title: 'Bench Press',
+    video: {
+      title: 'Bench Press Form Guide',
+      channel: 'Squat University',
+      duration: '5:00',
+      thumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop',
+      url: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/bench%20press.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9iZW5jaCBwcmVzcy5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NDExLCJleHAiOjE5NDI4MjU0MTF9.idN1dnmLjwz-xOmW-pgJqSSIJVCeVNjuRofucuVf-0E',
+      videoUrl: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/bench%20press.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9iZW5jaCBwcmVzcy5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NDExLCJleHAiOjE5NDI4MjU0MTF9.idN1dnmLjwz-xOmW-pgJqSSIJVCeVNjuRofucuVf-0E',
+      localVideoName: 'bench press.mp4'
+    },
+    postures: [
+      { label: 'STEP 1 — BENCH SETUP', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop' },
+      { label: 'STEP 2 — PRESS', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop' }
+    ],
+    steps: [
+      { step: 1, title: 'Step 1', desc: 'Lie flat on the bench with feet planted on floor.' },
+      { step: 2, title: 'Step 2', desc: 'Grip bar slightly wider than shoulder width.' },
+      { step: 3, title: 'Step 3', desc: 'Lower bar to mid-chest with control.' },
+      { step: 4, title: 'Step 4', desc: 'Press bar upward steadily to full arm extension.' }
+    ],
+    mistakes: [
+      { title: 'Bouncing bar off chest', desc: 'Control the descent and pause briefly.' },
+      { title: 'Lifting hips off bench', desc: 'Keep glutes in contact with the bench.' }
+    ]
+  },
+  latpulldown: {
+    title: 'Lat Pulldown',
+    video: {
+      title: 'Lat Pulldown Masterclass',
+      channel: 'Athlean-X',
+      duration: '4:50',
+      thumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop',
+      url: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/lat%20pulldown.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9sYXQgcHVsbGRvd24ubXA0Iiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NTE0NTU5NSwiZXhwIjoxOTQyODI1NTk1fQ.dArgZYKrP3rLpZLNhqspbZwkb-unlQ8J8cevlqrOtX8',
+      videoUrl: 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/lat%20pulldown.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9sYXQgcHVsbGRvd24ubXA0Iiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NTE0NTU5NSwiZXhwIjoxOTQyODI1NTk1fQ.dArgZYKrP3rLpZLNhqspbZwkb-unlQ8J8cevlqrOtX8',
+      localVideoName: 'lat pulldown.mp4'
+    },
+    postures: [
+      { label: 'STEP 1 — GRIP', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop' },
+      { label: 'STEP 2 — PULL', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop' }
+    ],
+    steps: [
+      { step: 1, title: 'Step 1', desc: 'Grip the bar wider than shoulder-width.' },
+      { step: 2, title: 'Step 2', desc: 'Sit upright with thighs secured under pads.' },
+      { step: 3, title: 'Step 3', desc: 'Pull bar down toward upper chest, driving elbows down.' },
+      { step: 4, title: 'Step 4', desc: 'Slowly return bar to starting position.' }
+    ],
+    mistakes: [
+      { title: 'Leaning too far back', desc: 'Keep a slight backward lean but do not swing.' },
+      { title: 'Pulling behind neck', desc: 'Always pull toward upper chest for shoulder safety.' }
+    ]
+  },
+  // TODO: Requires a valid reference video for Jumping Jack
+  jumpingjack: {
+    title: 'Jumping Jack',
+    video: {
+      title: 'Jumping Jack Form Tutorial',
+      channel: 'Cardio Kings',
+      duration: '2:00',
+      thumbnail: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=600&auto=format&fit=crop',
+      url: '', // TODO: Requires a valid reference video for Jumping Jack
+      videoUrl: '', // TODO: Requires a valid reference video for Jumping Jack
+      localVideoName: ''
+    },
+    postures: [],
+    steps: [
+      { step: 1, title: 'Step 1', desc: 'Stand upright with legs together and arms at sides.' },
+      { step: 2, title: 'Step 2', desc: 'Jump up, spreading feet and bringing arms overhead.' },
+      { step: 3, title: 'Step 3', desc: 'Jump again to return to starting position.' }
+    ],
+    mistakes: []
+  },
+  // TODO: Requires a valid reference video for Burpee
+  burpee: {
+    title: 'Burpee',
+    video: {
+      title: 'Burpee Tutorial',
+      channel: 'Cardio Kings',
+      duration: '3:00',
+      thumbnail: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=600&auto=format&fit=crop',
+      url: '', // TODO: Requires a valid reference video for Burpee
+      videoUrl: '', // TODO: Requires a valid reference video for Burpee
+      localVideoName: ''
+    },
+    postures: [],
+    steps: [
+      { step: 1, title: 'Step 1', desc: 'Stand upright, then drop into a squat position.' },
+      { step: 2, title: 'Step 2', desc: 'Kick your feet back into a plank position.' },
+      { step: 3, title: 'Step 3', desc: 'Perform a push-up, jump feet back to squat, and jump up.' }
+    ],
+    mistakes: []
+  },
+  // TODO: Requires a valid reference video for Sit-Up
+  situp: {
+    title: 'Sit-Up',
+    video: {
+      title: 'Sit-Up Proper Form',
+      channel: 'Core Fitness',
+      duration: '2:30',
+      thumbnail: 'https://images.unsplash.com/photo-1566241142559-40e1dab266c6?q=80&w=600&auto=format&fit=crop',
+      url: '', // TODO: Requires a valid reference video for Sit-Up
+      videoUrl: '', // TODO: Requires a valid reference video for Sit-Up
+      localVideoName: ''
+    },
+    postures: [],
+    steps: [
+      { step: 1, title: 'Step 1', desc: 'Lie on your back with knees bent and feet planted.' },
+      { step: 2, title: 'Step 2', desc: 'Engage core and lift torso up toward your knees.' },
+      { step: 3, title: 'Step 3', desc: 'Lower your torso back down with control.' }
+    ],
+    mistakes: []
   }
 };
+

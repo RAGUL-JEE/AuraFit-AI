@@ -1,176 +1,277 @@
-import { useState, useEffect, useRef } from 'react';
+/**
+ * useWorkoutHistory.ts (Web App)
+ *
+ * Reads and writes to the shared `workout_sessions` table — the same table
+ * used by the Mobile App. Realtime subscription ensures workout history
+ * is in sync across both platforms without a page refresh.
+ * Also synchronizes with `user_progress` for aggregate statistics.
+ */
+import { useEffect } from 'react';
+import { create } from 'zustand';
 import { WorkoutSession } from '../types';
-import { supabase } from '../lib/supabaseClient';
+import { useAuth } from '../contexts/AuthContext';
+import {
+  fetchWorkoutSessions,
+  subscribeToWorkoutSessions,
+  WorkoutSessionRow,
+  fetchUserProgress,
+  subscribeToUserProgress,
+  UserProgressRow
+} from '../lib/supabaseSync';
 
-export function useWorkoutHistory() {
-  const [history, setHistory] = useState<WorkoutSession[]>(() => {
-    try {
-      const stored = localStorage.getItem('workout_history');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+/** Map a Supabase workout_sessions row → app WorkoutSession type */
+function mapRow(row: WorkoutSessionRow): WorkoutSession {
+  return {
+    id: row.id,
+    exerciseId: row.exercise_id,
+    reps: row.reps ?? 0,
+    sets: row.sets ?? 0,
+    calories: row.calories ?? 0,
+    durationSeconds: row.duration_seconds ?? 0,
+    accuracy: row.accuracy ?? 0,
+    date: row.created_at,
+  };
+}
 
-  // Track whether we have loaded from Supabase for this session
-  const loadedFromDB = useRef(false);
+export type PendingMutation = {
+  id: string;
+  endpoint: string;
+  payload: any;
+  timestamp: number;
+  optimisticId?: string;
+};
 
-  // ── On mount: load history from Supabase if the user is logged in ──
-  useEffect(() => {
-    const loadFromSupabase = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) return; // Not logged in — keep localStorage data
+interface WorkoutStore {
+  history: WorkoutSession[];
+  progress: UserProgressRow | null;
+  pendingMutations: PendingMutation[];
+  historyChannel: any;
+  progressChannel: any;
+  init: (userId: string) => void;
+  cleanup: () => void;
+  setHistory: (history: WorkoutSession[]) => void;
+  setProgress: (progress: UserProgressRow | null) => void;
+  addMutation: (mutation: PendingMutation) => void;
+  removeMutation: (id: string) => void;
+  syncMutations: (token: string) => Promise<void>;
+  optimisticSave: (session: WorkoutSession) => void;
+  optimisticDelete: (id: string) => void;
+}
 
-        const { data, error } = await supabase
-          .from('workout_sessions')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .order('created_at', { ascending: false })
-          .limit(200);
+const getInitialHistory = () => {
+  try {
+    const stored = localStorage.getItem('workout_history');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
 
-        if (error) {
-          console.warn('Supabase workout_sessions load failed, using localStorage:', error.message);
-          return;
-        }
+const getInitialProgress = () => {
+  try {
+    const stored = localStorage.getItem('user_progress');
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+};
 
-        if (data && data.length > 0) {
-          // Map Supabase snake_case → frontend camelCase WorkoutSession shape
-          const mapped: WorkoutSession[] = data.map((row: any) => ({
-            id: row.id,
-            exerciseId: row.exercise_id,
-            reps: row.reps ?? 0,
-            sets: row.sets ?? 0,
-            calories: row.calories ?? 0,
-            durationSeconds: row.duration_seconds ?? 0,
-            accuracy: row.accuracy ?? 0,
-            date: row.created_at,
-          }));
-          setHistory(mapped);
-          localStorage.setItem('workout_history', JSON.stringify(mapped));
-        }
-        loadedFromDB.current = true;
-      } catch (err) {
-        console.warn('Supabase workout history load error (offline?):', err);
-      }
-    };
+const getInitialMutations = (): PendingMutation[] => {
+  try {
+    const stored = localStorage.getItem('pending_mutations');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
 
-    loadFromSupabase();
-  }, []);
+export const useWorkoutStore = create<WorkoutStore>((set, get) => ({
+  history: getInitialHistory(),
+  progress: getInitialProgress(),
+  pendingMutations: getInitialMutations(),
+  historyChannel: null,
+  progressChannel: null,
 
-  // ── Persist to localStorage whenever history changes ──
-  useEffect(() => {
+  setHistory: (history) => {
+    set({ history });
     localStorage.setItem('workout_history', JSON.stringify(history));
-  }, [history]);
+  },
+  
+  setProgress: (progress) => {
+    set({ progress });
+    localStorage.setItem('user_progress', JSON.stringify(progress));
+  },
 
-  // ── Add a new session: optimistic local update + async Supabase write ──
-  const addSession = async (session: Omit<WorkoutSession, 'id' | 'date'>) => {
-    const newSession: WorkoutSession = {
-      ...session,
-      id: Math.random().toString(36).substring(7),
-      date: new Date().toISOString(),
-    };
+  addMutation: (mutation) => {
+    const next = [...get().pendingMutations, mutation];
+    set({ pendingMutations: next });
+    localStorage.setItem('pending_mutations', JSON.stringify(next));
+  },
 
-    // 1. Optimistic local update
-    setHistory(prev => {
-      const next = [newSession, ...prev];
+  removeMutation: (id) => {
+    const next = get().pendingMutations.filter(m => m.id !== id);
+    set({ pendingMutations: next });
+    localStorage.setItem('pending_mutations', JSON.stringify(next));
+  },
+
+  optimisticSave: (session) => {
+    const history = get().history;
+    const existingIdx = history.findIndex(h => h.id === session.id);
+    let next;
+    if (existingIdx >= 0) {
+      next = [...history];
+      next[existingIdx] = session;
+    } else {
+      next = [session, ...history];
+    }
+    get().setHistory(next);
+  },
+
+  optimisticDelete: (id) => {
+    const next = get().history.filter(h => h.id !== id);
+    get().setHistory(next);
+  },
+
+  syncMutations: async (token) => {
+    const mutations = get().pendingMutations;
+    if (mutations.length === 0 || !navigator.onLine) return;
+
+    for (const mutation of mutations) {
       try {
-        window.dispatchEvent(new CustomEvent('workout_history_updated', { detail: next }));
-      } catch (e) {}
-      return next;
+        const res = await fetch(mutation.endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(mutation.payload)
+        });
+        if (res.ok) {
+          get().removeMutation(mutation.id);
+        }
+      } catch (err) {
+        console.warn('Failed to sync mutation', mutation.id, err);
+        break; // Stop syncing if network drops
+      }
+    }
+  },
+
+  init: async (userId: string) => {
+    // Prevent multiple subscriptions
+    get().cleanup();
+
+    // 1. Load History
+    try {
+      const rows = await fetchWorkoutSessions(userId);
+      get().setHistory(rows.map(mapRow));
+    } catch (err) {
+      console.warn('[useWorkoutStore] History load failed:', err);
+    }
+
+    // Subscribe History
+    const historyChannel = subscribeToWorkoutSessions(userId, (rows) => {
+      get().setHistory(rows.map(mapRow));
     });
 
-    // 2. Async persist to Supabase
+    // 2. Load Progress
     try {
-      const { data: { session: authSession } } = await supabase.auth.getSession();
-      if (authSession?.user) {
-        const { error } = await supabase.from('workout_sessions').insert({
-          user_id: authSession.user.id,
-          exercise_id: session.exerciseId,
-          reps: session.reps,
-          sets: session.sets,
-          calories: session.calories,
-          duration_seconds: session.durationSeconds,
-          accuracy: session.accuracy,
-        });
-
-        if (error) {
-          console.warn('Supabase workout session save failed:', error.message);
-        }
-      }
+      const prog = await fetchUserProgress(userId);
+      get().setProgress(prog);
     } catch (err) {
-      console.warn('Supabase workout session write error (offline?):', err);
+      console.warn('[useWorkoutStore] Progress load failed:', err);
     }
-  };
 
-  // ── Listen for cross-component updates ──
+    // Subscribe Progress
+    const progressChannel = subscribeToUserProgress(userId, (prog) => {
+      get().setProgress(prog);
+    });
+
+    set({ historyChannel, progressChannel });
+  },
+
+  cleanup: () => {
+    const { historyChannel, progressChannel } = get();
+    if (historyChannel) historyChannel.unsubscribe();
+    if (progressChannel) progressChannel.unsubscribe();
+    set({ historyChannel: null, progressChannel: null });
+  }
+}));
+
+export function useWorkoutHistory() {
+  const { session } = useAuth();
+  const store = useWorkoutStore();
+
   useEffect(() => {
-    const handler = (e: any) => {
-      if (e && e.detail) {
-        setHistory(e.detail);
+    const handleOnline = () => {
+      if (session?.access_token) {
+        store.syncMutations(session.access_token);
       }
     };
-    window.addEventListener('workout_history_updated', handler as EventListener);
-    return () => window.removeEventListener('workout_history_updated', handler as EventListener);
-  }, []);
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [session?.access_token]);
 
-  // ── Derived stats ──
-  const totalWorkouts = history.length;
-  const totalCalories = history.reduce((sum, s) => sum + s.calories, 0);
-  const avgAccuracy =
-    history.length > 0
-      ? Math.round(history.reduce((sum, s) => sum + s.accuracy, 0) / history.length)
-      : 0;
-
-  // Day streak calculation
-  const getStreak = () => {
-    if (history.length === 0) return 0;
-
-    const sorted = [...history].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-
-    let streak = 0;
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0);
-
-    let foundTodayOrYesterday = false;
-
-    const uniqueDays = Array.from(
-      new Set(
-        sorted.map(s => {
-          const d = new Date(s.date);
-          return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-        })
-      )
-    );
-
-    for (let i = 0; i < uniqueDays.length; i++) {
-      const d = new Date(uniqueDays[i]);
-      d.setHours(0, 0, 0, 0);
-
-      const diffDays = Math.floor(
-        (currentDate.getTime() - d.getTime()) / (1000 * 3600 * 24)
-      );
-
-      if (i === 0 && diffDays <= 1) {
-        streak++;
-        foundTodayOrYesterday = true;
-      } else if (i > 0 && foundTodayOrYesterday) {
-        const prevD = new Date(uniqueDays[i - 1]);
-        prevD.setHours(0, 0, 0, 0);
-        const gap = Math.floor((prevD.getTime() - d.getTime()) / (1000 * 3600 * 24));
-        if (gap === 1) {
-          streak++;
-        } else {
-          break;
-        }
-      }
+  useEffect(() => {
+    if (session?.user?.id) {
+      store.init(session.user.id);
+      store.syncMutations(session.access_token);
+    } else {
+      store.cleanup();
     }
-    return streak;
+    return () => store.cleanup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.id]);
+
+  const addSession = async (workout: Omit<WorkoutSession, 'id' | 'date'>) => {
+    console.warn('addSession is deprecated. Use POST /api/save-workout instead.');
   };
 
-  const streak = getStreak();
+  const syncOperation = async (endpoint: string, payload: any, optimisticData?: { action: 'save' | 'delete', session?: WorkoutSession, id?: string }) => {
+    // 1. Optimistic update
+    if (optimisticData) {
+      if (optimisticData.action === 'save' && optimisticData.session) {
+        store.optimisticSave(optimisticData.session);
+      } else if (optimisticData.action === 'delete' && optimisticData.id) {
+        store.optimisticDelete(optimisticData.id);
+      }
+    }
 
-  return { history, addSession, totalWorkouts, totalCalories, streak, avgAccuracy };
+    // 2. Add to offline queue immediately
+    const mutationId = crypto.randomUUID();
+    store.addMutation({
+      id: mutationId,
+      endpoint,
+      payload,
+      timestamp: Date.now()
+    });
+
+    // 3. Try to sync immediately
+    if (session?.access_token) {
+      store.syncMutations(session.access_token);
+    }
+  };
+
+  const deleteSession = async (id: string) => {
+    await syncOperation('/api/delete-workout', { id }, { action: 'delete', id });
+  };
+
+  const updateSession = async (session: WorkoutSession) => {
+    await syncOperation('/api/update-workout', session, { action: 'save', session });
+  };
+
+  const totalWorkouts = store.progress?.workouts_completed ?? 0;
+  const totalCalories = store.progress?.total_calories ?? 0;
+  const avgAccuracy = store.progress?.average_accuracy ?? 0;
+  const streak = store.progress?.current_streak ?? 0;
+
+  return {
+    history: store.history,
+    addSession,
+    deleteSession,
+    updateSession,
+    totalWorkouts,
+    totalCalories,
+    streak,
+    avgAccuracy,
+  };
 }

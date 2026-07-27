@@ -5,10 +5,14 @@ import './index.css';
 
 import { ToastProvider } from './components/Toast';
 
+import { AuthProvider } from './contexts/AuthContext';
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ToastProvider>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </ToastProvider>
   </StrictMode>,
 );

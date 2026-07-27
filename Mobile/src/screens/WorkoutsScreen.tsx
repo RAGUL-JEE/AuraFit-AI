@@ -7,14 +7,14 @@ import GlobalHeader from '../components/GlobalHeader';
 import TouchScale from '../components/animations/TouchScale';
 import { MotiPressable } from 'moti/interactions';
 import { AnimatePresence, MotiView } from 'moti';
+import { CONFIG } from '../lib/config';
 
-const hostUri = Constants.expoConfig?.hostUri;
-const localIp = hostUri ? hostUri.split(':')[0] : '192.168.1.100';
-const imageBaseUrl = `http://${localIp}:5173`;
+const imageBaseUrl = CONFIG.ASSET_URL;
 
 const CATEGORIES = ['All', 'Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core'];
 
 import { WORKOUTS } from '../data/workouts';
+import { useFavorites } from '../hooks/useFavorites';
 
 const FallbackImage = ({ source, style }: { source: any; style: any }) => {
   const [hasError, setHasError] = useState(false);
@@ -30,6 +30,7 @@ const FallbackImage = ({ source, style }: { source: any; style: any }) => {
 
 export default function WorkoutsScreen({ navigation }: any) {
   const [activeCategory, setActiveCategory] = useState('All');
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   const startWorkout = (workoutId: string) => {
     navigation.navigate('Active', { workoutId });
@@ -127,6 +128,7 @@ export default function WorkoutsScreen({ navigation }: any) {
                   <FallbackImage source={workout.imageSource} style={styles.cardImage} />
                   <MotiPressable 
                     style={styles.favoriteBtn}
+                    onPress={() => toggleFavorite(workout.id)}
                     animate={({ pressed }) => {
                       'worklet';
                       return {
@@ -134,7 +136,11 @@ export default function WorkoutsScreen({ navigation }: any) {
                       }
                     }}
                   >
-                    <Heart color="#fff" size={16} />
+                    <Heart 
+                      color={isFavorite(workout.id) ? "#ef4444" : "#fff"} 
+                      size={16} 
+                      fill={isFavorite(workout.id) ? "#ef4444" : "transparent"} 
+                    />
                   </MotiPressable>
                 </View>
                 

@@ -3,6 +3,7 @@ import { Play, Square, Save, AlertTriangle, AlertCircle, Plus, Minus, ArrowUp, A
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { ExerciseData } from '../types';
 import { useWorkoutHistory } from '../hooks/useWorkoutHistory';
+import { useAuth } from '../contexts/AuthContext';
 import { EXERCISES } from '../data/exercises';
 
 function EmojiStyleIconBadge({
@@ -282,34 +283,30 @@ const EXERCISE_DIFFICULTY_MAP: Record<string, 'Normal' | 'Medium' | 'High'> = {
 export function ActiveWorkout({ exercise, onExerciseChange }: { exercise?: ExerciseData | null; onExerciseChange?: (ex: ExerciseData) => void }) {
   const getWorkoutVideoSrc = (title: string) => {
     const normalized = title.toUpperCase().replace(/\s+/g, '_').replace(/-/g, '_');
-    if (normalized === 'SQUAT') {
-      return '/videos/tutorial_v_mp_.mp4';
-    }
-    if (normalized === 'LUNGE') {
-      return '/videos/lunge.mp4';
-    }
-    if (normalized === 'PLANK') {
-      return '/videos/plank.mp4';
-    }
-    if (normalized === 'BICEP_CURL') {
-      return '/videos/bicep_curl.mp4';
-    }
-    if (normalized === 'SHOULDER_PRESS') {
-      return '/videos/shoulder_press_vertical_ai_coach_tutorialmp_.mp4';
-    }
-    if (normalized === 'BENCH_PRESS') {
-      return '/videos/Cinematic_AI_Fitness_Tutorial.mp4';
-    }
-    if (normalized === 'LAT_PULLDOWN') {
-      return '/videos/dd_f_d_a_a_c_d_d_mp_.mp4';
-    }
-    if (normalized === 'DEADLIFT') {
-      return '/videos/deadlift_tutorial_mp_.mp4';
-    }
-    if (normalized === 'MOUNTAIN_CLIMBER') {
-      return '/videos/mountain_climber_tutorial_mp_.mp4';
-    }
-    return '/videos/mp4.mp4';
+    const videoMap: Record<string, string> = {
+      'PUSH_UP': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/push%20up.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9wdXNoIHVwLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU2ODEsImV4cCI6MTk0MjgyNTY4MX0.9iEvHn_zGuqREAyLIyc7xcFSHmZ__UqJU-aA7LwRJq4',
+      'PUSHUP': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/push%20up.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9wdXNoIHVwLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU2ODEsImV4cCI6MTk0MjgyNTY4MX0.9iEvHn_zGuqREAyLIyc7xcFSHmZ__UqJU-aA7LwRJq4',
+      'SQUAT': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/Squat.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9TcXVhdC5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NzEyLCJleHAiOjE5NDI4MjU3MTJ9.ntV_SRtg3bOcM11OU4E8U7CCxM9ijnvRp5hV-Dti4yo',
+      'SQUATS': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/Squat.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9TcXVhdC5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NzEyLCJleHAiOjE5NDI4MjU3MTJ9.ntV_SRtg3bOcM11OU4E8U7CCxM9ijnvRp5hV-Dti4yo',
+      'LUNGE': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/lunge.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9sdW5nZS5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NjMzLCJleHAiOjE5NDI4MjU2MzN9.Wn7AZCO2OlxIdUQswmeTfVh2WgGS8sP3wybm5c2fufE',
+      'LUNGES': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/lunge.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9sdW5nZS5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NjMzLCJleHAiOjE5NDI4MjU2MzN9.Wn7AZCO2OlxIdUQswmeTfVh2WgGS8sP3wybm5c2fufE',
+      'PLANK': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/plank.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9wbGFuay5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NjYzLCJleHAiOjE5NDI4MjU2NjN9.nTgiBxwQ0h0ROOOQqCRaDARj00Bk-SVMnQljYTNNOFk',
+      'PLANKS': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/plank.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9wbGFuay5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NjYzLCJleHAiOjE5NDI4MjU2NjN9.nTgiBxwQ0h0ROOOQqCRaDARj00Bk-SVMnQljYTNNOFk',
+      'BICEP_CURL': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/bicep%20curl.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9iaWNlcCBjdXJsLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU1MjUsImV4cCI6MTk0MjgyNTUyNX0.9z11Gcycf9MNRWONcCozUg3QNYT6e2LylXJ2P326wDk',
+      'BICEP': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/bicep%20curl.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9iaWNlcCBjdXJsLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU1MjUsImV4cCI6MTk0MjgyNTUyNX0.9z11Gcycf9MNRWONcCozUg3QNYT6e2LylXJ2P326wDk',
+      'SHOULDER_PRESS': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/shoulder%20press.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9zaG91bGRlciBwcmVzcy5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1Njk2LCJleHAiOjE5NDI4MjU2OTZ9.qgyDwkVoOabi1A9zgGddsdxKLTa12UTx1_Ylaj1Co5s',
+      'BENCH_PRESS': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/bench%20press.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9iZW5jaCBwcmVzcy5tcDQiLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg1MTQ1NDExLCJleHAiOjE5NDI4MjU0MTF9.idN1dnmLjwz-xOmW-pgJqSSIJVCeVNjuRofucuVf-0E',
+      'LAT_PULLDOWN': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/lat%20pulldown.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9sYXQgcHVsbGRvd24ubXA0Iiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NTE0NTU5NSwiZXhwIjoxOTQyODI1NTk1fQ.dArgZYKrP3rLpZLNhqspbZwkb-unlQ8J8cevlqrOtX8',
+      'DEADLIFT': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/dead%20lift.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9kZWFkIGxpZnQubXA0Iiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc4NTE0NTU0NSwiZXhwIjoxOTQyODI1NTQ1fQ.84G5doExrTuZo3Gyv4C5AkTzsMdRGmZ_ca3BLBlBaNM',
+      'MOUNTAIN_CLIMBER': 'https://urmnrxvnlnulgqfteahi.supabase.co/storage/v1/object/sign/workout%20vidoes/mountain%20climber.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV82YWJjZDE4My0yMTdlLTRmODMtOGFhZS1kNGFlMmQ4NzUwMjciLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ3b3Jrb3V0IHZpZG9lcy9tb3VudGFpbiBjbGltYmVyLm1wNCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3ODUxNDU2NDgsImV4cCI6MTk0MjgyNTY0OH0.RjA52GRAcVacocAmque4_kts57-IOz0eXbsExD3vJVY',
+      // TODO: Requires a valid reference video for Jumping Jack
+      'JUMPING_JACK': '',
+      // TODO: Requires a valid reference video for Burpee
+      'BURPEE': '',
+      // TODO: Requires a valid reference video for Sit-Up
+      'SIT_UP': ''
+    };
+    return videoMap[normalized] || videoMap['PUSH_UP'];
   };
 
   const isPlank = exercise?.id === 'ex-04';
@@ -323,7 +320,8 @@ export function ActiveWorkout({ exercise, onExerciseChange }: { exercise?: Exerc
   const [calories, setCalories] = useState(0);
   const [duration, setDuration] = useState(0);
   const [formScore, setFormScore] = useState(94);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   const [isPlayingGuide, setIsPlayingGuide] = useState(false);
   const [aiVoiceActive, setAiVoiceActive] = useState(true);
   const shouldReduceMotion = useReducedMotion();
@@ -493,6 +491,7 @@ export function ActiveWorkout({ exercise, onExerciseChange }: { exercise?: Exerc
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isSlideshowHovered, setIsSlideshowHovered] = useState(false);
 
+  const { session } = useAuth();
   const { addSession } = useWorkoutHistory();
   const [selectedExercise, setSelectedExercise] = useState<ExerciseData>(
     exercise || EXERCISES.find(e => e.id === 'ex-07') || EXERCISES[0]
@@ -594,7 +593,8 @@ export function ActiveWorkout({ exercise, onExerciseChange }: { exercise?: Exerc
       }
     } catch (err) {
       console.error('Failed to start detection session:', err);
-      setIsTracking(true);
+      // setIsTracking(true); // removed to avoid getting stuck in tracking mode when server is down
+      alert("Detection server is still starting up or offline. Please wait a moment and try again.");
     }
   };
 
@@ -687,7 +687,6 @@ export function ActiveWorkout({ exercise, onExerciseChange }: { exercise?: Exerc
 
             if (data.completed) {
               setIsTracking(false);
-              setShowSuccessModal(true);
             }
           }
         } catch (err) {
@@ -733,17 +732,59 @@ export function ActiveWorkout({ exercise, onExerciseChange }: { exercise?: Exerc
     setShowSetWorkoutModal(false);
   };
 
-  const handleSaveWorkout = () => {
-    addSession({
-      exerciseId: selectedExercise.id,
-      reps: currentReps + (currentSets * targetReps),
-      sets: currentSets,
-      calories,
-      durationSeconds: duration,
-      accuracy: formScore
-    });
-    alert('Workout saved to progress successfully!');
-    stopDetectionSession();
+  const handleSaveWorkout = async () => {
+    if (!session?.user?.id) return;
+    setIsSaving(true);
+    
+    try {
+      const payload = {
+        user_id: session.user.id,
+        exercise_id: selectedExercise.id,
+        workout_name: selectedExercise.name,
+        exercise_name: selectedExercise.name,
+        reps: currentReps + (currentSets * targetReps),
+        sets: currentSets,
+        calories,
+        duration: duration,
+        duration_seconds: duration,
+        accuracy: formScore,
+        correct_reps: currentReps + (currentSets * targetReps),
+        incorrect_reps: 0,
+        status: 'completed'
+      };
+
+      const res = await fetch('/api/save-workout', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error('Failed to save workout');
+      
+      // Also send completion email if needed
+      if (session?.user?.email) {
+        fetch('/api/email/workout-completion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: session.user.email,
+            name: session.user.user_metadata?.full_name || session.user.email.split('@')[0],
+            stats: { duration, calories, reps: payload.reps, accuracy: formScore }
+          })
+        }).catch(e => console.warn('Failed to send workout completion email:', e));
+      }
+
+      alert('Workout Saved Successfully 🎉');
+      stopDetectionSession();
+    } catch (err) {
+      console.error(err);
+      alert('Error saving workout');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleFinishWorkout = () => {
@@ -751,7 +792,6 @@ export function ActiveWorkout({ exercise, onExerciseChange }: { exercise?: Exerc
     if (aiVoiceActive) {
       speak(`${selectedExercise.title} complete! You did ${currentSets} sets, ${currentReps + currentSets * targetReps} reps, and burned ${calories} calories. Great job!`, true);
     }
-    setShowSuccessModal(true);
   };
 
   const formatTime = (secs: number) => {
@@ -880,12 +920,18 @@ export function ActiveWorkout({ exercise, onExerciseChange }: { exercise?: Exerc
             </button>
 
             <button
-              onClick={handleSaveWorkout}
-              className="flex items-center gap-2 py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/10 hover:scale-[1.02] active:scale-95 transition-all font-bold text-xs cursor-pointer duration-300 shadow-md backdrop-blur-md"
+              onClick={() => { handleSaveWorkout().then(() => resetDetectionSession()); }}
+              disabled={isSaving}
+              className={`flex items-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold transition-all active:scale-95 hover:scale-[1.02] cursor-pointer duration-300 backdrop-blur-md shadow-lg border ${
+                isSaving 
+                  ? 'bg-emerald-500/50 text-white/70 border-emerald-400/20 cursor-wait'
+                  : 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-400/50'
+              }`}
             >
-              <Save className="w-3.5 h-3.5" /> 
-              Save Result
+              <Save className="w-3.5 h-3.5 text-white" /> 
+              {isSaving ? 'Saving...' : 'Save Workout'}
             </button>
+
           </div>
         </motion.section>
 
@@ -1260,86 +1306,7 @@ export function ActiveWorkout({ exercise, onExerciseChange }: { exercise?: Exerc
         </motion.div>
       </motion.div>
 
-      {/* ── Success / Workout Summary Modal ── */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all duration-500">
-          <div className="theme-card max-w-lg w-full p-8 text-center shadow-2xl transition-all duration-300 z-10 animate-in fade-in zoom-in-95 duration-200 overflow-y-auto max-h-[90vh]">
 
-            {/* Trophy icon */}
-            <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4 shadow-md border border-emerald-500/20 relative">
-              <CheckCircle2 className="w-10 h-10 text-emerald-500 animate-pulse" />
-              <span className="absolute -top-1 -right-1 text-xl">🏆</span>
-            </div>
-
-            <h2 className="text-2xl font-black text-primary tracking-tight mb-1">Workout Complete!</h2>
-            <p className="text-xs text-on-surface-variant mb-1 px-4">
-              {selectedExercise.title}
-            </p>
-            <p className="text-[10px] text-on-surface-variant/70 mb-6 px-4">
-              Fantastic session! Here's your full workout summary.
-            </p>
-
-            {/* Summary Stats Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
-              <div className="bg-emerald-500/10 border border-emerald-500/25 py-4 px-3 rounded-2xl flex flex-col items-center">
-                <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Total Reps</p>
-                <p className="text-2xl font-black text-primary leading-none">{currentReps + (currentSets * targetReps)}</p>
-              </div>
-              <div className="bg-purple-500/10 border border-purple-500/25 py-4 px-3 rounded-2xl flex flex-col items-center">
-                <p className="text-[9px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1">Sets Done</p>
-                <p className="text-2xl font-black text-primary leading-none">{currentSets}<span className="text-sm text-on-surface-variant font-bold">/{targetSets}</span></p>
-              </div>
-              <div className="bg-orange-500/10 border border-orange-500/25 py-4 px-3 rounded-2xl flex flex-col items-center col-span-2 sm:col-span-1">
-                <p className="text-[9px] font-black text-orange-500 uppercase tracking-widest mb-1">Calories Burned</p>
-                <p className="text-2xl font-black text-primary leading-none">{calories}<span className="text-xs text-on-surface-variant font-bold ml-0.5">kcal</span></p>
-              </div>
-              <div className="bg-cyan-500/10 border border-cyan-500/25 py-4 px-3 rounded-2xl flex flex-col items-center">
-                <p className="text-[9px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest mb-1">Duration</p>
-                <p className="text-xl font-black text-primary leading-none">{formatTime(duration)}</p>
-              </div>
-              <div className="bg-indigo-500/10 border border-indigo-500/25 py-4 px-3 rounded-2xl flex flex-col items-center">
-                <p className="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1">Form Score</p>
-                <p className="text-2xl font-black text-primary leading-none">{formScore}<span className="text-sm text-on-surface-variant font-bold">%</span></p>
-              </div>
-              <div className="bg-rose-500/10 border border-rose-500/25 py-4 px-3 rounded-2xl flex flex-col items-center">
-                <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">Grade</p>
-                <p className="text-2xl font-black text-emerald-500 leading-none">
-                  {formScore >= 95 ? 'S+' : formScore >= 90 ? 'A+' : formScore >= 85 ? 'A' : 'B+'}
-                </p>
-              </div>
-            </div>
-
-            {/* Motivational message */}
-            <div className="bg-outline-variant/10 border border-outline rounded-2xl p-4 mb-6 text-left">
-              <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1">Coach Feedback</p>
-              <p className="text-xs text-on-surface-variant leading-relaxed">
-                {formScore >= 95
-                  ? `Outstanding performance on ${selectedExercise.title}! Your form was near-perfect. Keep this consistency and you'll see incredible gains.`
-                  : formScore >= 90
-                  ? `Great job on ${selectedExercise.title}! Your form was excellent. Focus on maintaining full range of motion in your next session.`
-                  : `Good effort on ${selectedExercise.title}! Review the form guide and aim for smoother reps next time to maximize muscle activation.`
-                }
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowSuccessModal(false)}
-                className="flex-1 border border-outline text-primary hover:bg-outline-variant/20 py-3.5 rounded-2xl font-bold text-sm hover:scale-[1.02] active:scale-95 transition-all cursor-pointer duration-300"
-              >
-                Keep Going
-              </button>
-              <button
-                onClick={() => { handleSaveWorkout(); setShowSuccessModal(false); }}
-                className="flex-1 bg-primary hover:bg-[#334155] dark:hover:bg-[#E2E8F0] text-white dark:text-[#1E293B] py-3.5 rounded-2xl font-extrabold text-sm hover:scale-[1.02] active:scale-95 transition-all cursor-pointer duration-300 shadow-md border border-transparent"
-              >
-                Save & Exit
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Set Workout Modal ── */}
       {showSetWorkoutModal && (

@@ -11,87 +11,16 @@ import { Settings } from './pages/Settings';
 import { Profile } from './pages/Profile';
 import { Layout } from './components/Layout';
 import { Tab, ExerciseData } from './types';
-import { useUserProfile, mapSupabaseToProfile } from './hooks/useUserProfile';
 import { useDarkMode } from './hooks/useDarkMode';
-import { supabase } from './lib/supabaseClient';
+import { useAuth } from './contexts/AuthContext';
 
 export default function App() {
   useDarkMode(); // Initialize dark mode
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const { session, isCheckingSession, logout } = useAuth();
+  const isLoggedIn = !!session;
+
   const [history, setHistory] = useState<(Tab | 'active-workout')[]>(['home']);
   const [activeExercise, setActiveExercise] = useState<ExerciseData | null>(null);
-  const { updateProfile } = useUserProfile();
-
-  useEffect(() => {
-    // 1. Initial Session Check via local backend API
-    const checkSession = async () => {
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        setIsCheckingSession(false);
-        setIsLoggedIn(false);
-        return;
-      }
-      try {
-        const res = await fetch('/api/auth/session', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.authenticated && data.user) {
-            updateProfile({
-              fullName: data.user.name,
-              email: data.user.email,
-              username: data.user.username,
-              phoneNumber: data.user.phoneNumber,
-              location: data.user.location,
-              age: data.user.age,
-              weight: data.user.weight,
-              height: data.user.height,
-              bodyFat: data.user.bodyFat,
-              fitnessGoal: data.user.fitnessGoal,
-              joinedDate: data.user.joinedDate,
-            });
-            setIsLoggedIn(true);
-          } else {
-            localStorage.removeItem('auth_token');
-            setIsLoggedIn(false);
-          }
-        } else {
-          localStorage.removeItem('auth_token');
-          setIsLoggedIn(false);
-        }
-      } catch (err) {
-        console.error('Local session recovery failed, checking Supabase fallback:', err);
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.user) {
-            localStorage.setItem('auth_token', session.access_token);
-            const { data: dbProfile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .maybeSingle();
-
-            const mappedProfile = mapSupabaseToProfile(dbProfile, session.user.email || '');
-            updateProfile(mappedProfile);
-            setIsLoggedIn(true);
-          } else {
-            setIsLoggedIn(false);
-          }
-        } catch (supErr) {
-          console.error('Supabase session recovery failed:', supErr);
-          setIsLoggedIn(false);
-        }
-      } finally {
-        setIsCheckingSession(false);
-      }
-    };
-    
-    checkSession();
-  }, []);
 
   const currentTab = history[history.length - 1];
 
@@ -105,22 +34,7 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      try {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-      } catch (e) {}
-    }
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {}
-    localStorage.removeItem('auth_token');
-    setIsLoggedIn(false);
+    await logout();
   };
 
   if (isCheckingSession) {
@@ -135,7 +49,7 @@ export default function App() {
   }
 
   if (!isLoggedIn) {
-    return <Login onLogin={() => setIsLoggedIn(true)} />;
+    return <Login onLogin={() => {}} />;
   }
 
   const handleLaunchActivity = (ex?: ExerciseData) => {

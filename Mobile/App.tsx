@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { LogBox } from 'react-native';
 import { DashboardProvider } from './src/context/DashboardContext';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
 
 LogBox.ignoreLogs(['SafeAreaView has been deprecated']);
 
@@ -43,23 +44,41 @@ function BottomTabs() {
   );
 }
 
+function RootNavigator() {
+  const { session, isCheckingSession } = useAuth();
+
+  if (isCheckingSession) {
+    return <SplashScreen />;
+  }
+
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+      {!session ? (
+        <Stack.Screen name="Login" component={LoginScreen} />
+      ) : (
+        <>
+          <Stack.Screen name="MainTabs" component={BottomTabs} />
+          <Stack.Screen name="Active" component={ActiveWorkoutScreen} />
+          <Stack.Screen name="Favorites" component={FavoritesScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="HowItWorks" component={HowItWorksScreen} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+}
+
 export default function App() {
   return (
     <SafeAreaProvider>
-      <DashboardProvider>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-            <Stack.Screen name="Splash" component={SplashScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="MainTabs" component={BottomTabs} />
-            <Stack.Screen name="Active" component={ActiveWorkoutScreen} />
-            <Stack.Screen name="Favorites" component={FavoritesScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-            <Stack.Screen name="Settings" component={SettingsScreen} />
-            <Stack.Screen name="HowItWorks" component={HowItWorksScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </DashboardProvider>
+      <AuthProvider>
+        <DashboardProvider>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+        </DashboardProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }
