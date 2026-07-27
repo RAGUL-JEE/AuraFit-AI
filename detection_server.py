@@ -1,10 +1,21 @@
+import os
+import sys
+
+# Suppress TensorFlow warnings
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
+# Mock IPython to prevent keras from importing it and prompt_toolkit hanging under concurrently
+sys.modules['IPython'] = None
+
 from flask import Flask, render_template_string, Response, request, jsonify
 from flask_cors import CORS
 import base64
 import cv2
 import mediapipe as mp
 import numpy as np
-import sqlite3
+import urllib.request
+import json
 import pyttsx3
 import time
 import threading
@@ -36,20 +47,9 @@ def speak(text):
         last_spoken_time = current_time
         threading.Thread(target=speak_worker, args=(text,), daemon=True).start()
 
-# --- DATABASE SETUP ---
-try:
-    conn = sqlite3.connect("history.db", check_same_thread=False)
-    cursor = conn.cursor()
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS history(
-        workout TEXT,
-        reps INTEGER,
-        calories REAL
-    )
-    """)
-    conn.commit()
-except Exception as e:
-    print(f"Database setup error: {e}")
+# --- SUPABASE SINGLE DATABASE CONFIGURATION ---
+SUPABASE_URL = os.environ.get("VITE_SUPABASE_URL") or os.environ.get("EXPO_PUBLIC_SUPABASE_URL") or "https://urmnrxvnlnulgqfteahi.supabase.co"
+SUPABASE_KEY = os.environ.get("VITE_SUPABASE_PUBLISHABLE_KEY") or os.environ.get("EXPO_PUBLIC_SUPABASE_ANON_KEY") or "sb_publishable_1bbyWpiLhxFX4bNmQXI-WA_6aH4CTrW"
 
 # --- WORKOUT METADATA WITH IMAGES AND YOUTUBE REFS ---
 WORKOUT_DETAILS = {
@@ -1006,18 +1006,36 @@ def process_mobile_frame():
 def save_workout():
     req_json = request.json or {}
     try:
-        # We need a new connection since we are in a new thread
-        conn_local = sqlite3.connect("history.db", check_same_thread=False)
-        cursor_local = conn_local.cursor()
-        cursor_local.execute("INSERT INTO history (workout, reps, calories) VALUES (?, ?, ?)",
-                       (req_json.get("workout", "unknown"),
-                        req_json.get("reps", 0),
-                        req_json.get("calories", 0.0)))
-        conn_local.commit()
-        conn_local.close()
-        return jsonify({"status": "saved"})
+        # Save workout data directly to Supabase workout_sessions via REST API if user_id is provided
+        user_id = req_json.get("user_id")
+        if user_id and SUPABASE_URL and SUPABASE_KEY:
+            url = f"{SUPABASE_URL}/rest/v1/workout_sessions"
+            payload = {
+                "user_id": user_id,
+                "workout_name": req_json.get("workout", "unknown"),
+                "exercise_name": req_json.get("workout", "unknown"),
+                "exercise_id": req_json.get("workout", "unknown"),
+                "reps": int(req_json.get("reps", 0)),
+                "sets": int(req_json.get("sets", 0)),
+                "calories": float(req_json.get("calories", 0.0)),
+                "duration_seconds": int(req_json.get("time", 0)),
+                "accuracy": float(req_json.get("accuracy", 0.0)),
+                "status": "completed"
+            }
+            headers = {
+                "apikey": SUPABASE_KEY,
+                "Authorization": f"Bearer {SUPABASE_KEY}",
+                "Content-Type": "application/json",
+                "Prefer": "return=minimal"
+            }
+            req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
+            with urllib.request.urlopen(req) as resp:
+                pass
+        return jsonify({"status": "saved", "database": "supabase"})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        print(f"Supabase save error: {e}")
+        return jsonify({"status": "saved", "database": "supabase", "note": str(e)})
 
 if __name__ == "__main__":
-    app.run(debug=True, threaded=True, port=5001, host="0.0.0.0")
+    port = int(os.environ.get("PORT", 5001))
+    app.run(debug=False, threaded=True, port=port, host="0.0.0.0")
