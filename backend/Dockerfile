@@ -1,5 +1,5 @@
-# Use official Python 3.11 slim image
-FROM python:3.11-slim
+# Use official Python 3.10 slim image (most compatible with MediaPipe Linux cp310 wheels)
+FROM python:3.10-slim
 
 # Prevent interactive prompts and Python buffering
 ENV DEBIAN_FRONTEND=noninteractive

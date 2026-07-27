@@ -17,8 +17,11 @@ try:
     mp_pose = mp.solutions.pose
     mp_draw = mp.solutions.drawing_utils
 except AttributeError:
-    import mediapipe.python.solutions.pose as mp_pose
-    import mediapipe.python.solutions.drawing_utils as mp_draw
+    try:
+        from mediapipe.solutions import pose as mp_pose, drawing_utils as mp_draw
+    except ImportError:
+        import mediapipe.python.solutions.pose as mp_pose
+        import mediapipe.python.solutions.drawing_utils as mp_draw
 
 pose = mp_pose.Pose()
 
