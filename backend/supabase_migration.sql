@@ -1,0 +1,170 @@
+-- ============================================================
+-- AI GYM COACH — Supabase Database Migration
+-- Run this in: Supabase Dashboard → SQL Editor → New Query
+-- ============================================================
+
+-- ─────────────────────────────────────────────
+-- 1. PROFILES TABLE
+-- ─────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id          UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  full_name   TEXT DEFAULT '',
+  username    TEXT DEFAULT '',
+  email       TEXT DEFAULT '',
+  phone_number TEXT DEFAULT '',
+  location    TEXT DEFAULT '',
+  age         INTEGER DEFAULT 28,
+  weight      NUMERIC(5,1) DEFAULT 78,
+  height      INTEGER DEFAULT 182,
+  body_fat    NUMERIC(4,1) DEFAULT 14,
+  fitness_goal TEXT DEFAULT 'Hypertrophy & Strength',
+  bio         TEXT DEFAULT '',
+  avatar_url  TEXT DEFAULT '',
+  joined_date TEXT DEFAULT '',
+  camera_enabled BOOLEAN DEFAULT true,
+  audio_feedback BOOLEAN DEFAULT true,
+  dark_mode BOOLEAN DEFAULT false,
+  notifications BOOLEAN DEFAULT true,
+  data_sync BOOLEAN DEFAULT true,
+  ai_sensitivity TEXT DEFAULT 'High',
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Add any missing columns to existing profiles table (safe to run multiple times)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='phone_number') THEN
+    ALTER TABLE public.profiles ADD COLUMN phone_number TEXT DEFAULT '';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='location') THEN
+    ALTER TABLE public.profiles ADD COLUMN location TEXT DEFAULT '';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='age') THEN
+    ALTER TABLE public.profiles ADD COLUMN age INTEGER DEFAULT 28;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='weight') THEN
+    ALTER TABLE public.profiles ADD COLUMN weight NUMERIC(5,1) DEFAULT 78;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='height') THEN
+    ALTER TABLE public.profiles ADD COLUMN height INTEGER DEFAULT 182;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='body_fat') THEN
+    ALTER TABLE public.profiles ADD COLUMN body_fat NUMERIC(4,1) DEFAULT 14;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='fitness_goal') THEN
+    ALTER TABLE public.profiles ADD COLUMN fitness_goal TEXT DEFAULT 'Hypertrophy & Strength';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='bio') THEN
+    ALTER TABLE public.profiles ADD COLUMN bio TEXT DEFAULT '';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='avatar_url') THEN
+    ALTER TABLE public.profiles ADD COLUMN avatar_url TEXT DEFAULT '';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='joined_date') THEN
+    ALTER TABLE public.profiles ADD COLUMN joined_date TEXT DEFAULT '';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='camera_enabled') THEN
+    ALTER TABLE public.profiles ADD COLUMN camera_enabled BOOLEAN DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='audio_feedback') THEN
+    ALTER TABLE public.profiles ADD COLUMN audio_feedback BOOLEAN DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='dark_mode') THEN
+    ALTER TABLE public.profiles ADD COLUMN dark_mode BOOLEAN DEFAULT false;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='notifications') THEN
+    ALTER TABLE public.profiles ADD COLUMN notifications BOOLEAN DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='data_sync') THEN
+    ALTER TABLE public.profiles ADD COLUMN data_sync BOOLEAN DEFAULT true;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='ai_sensitivity') THEN
+    ALTER TABLE public.profiles ADD COLUMN ai_sensitivity TEXT DEFAULT 'High';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='updated_at') THEN
+    ALTER TABLE public.profiles ADD COLUMN updated_at TIMESTAMPTZ DEFAULT NOW();
+  END IF;
+END $$;
+
+-- Enable Row Level Security
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for profiles
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
+CREATE POLICY "Users can view own profile"
+  ON public.profiles FOR SELECT
+  USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+CREATE POLICY "Users can update own profile"
+  ON public.profiles FOR UPDATE
+  USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
+CREATE POLICY "Users can insert own profile"
+  ON public.profiles FOR INSERT
+  WITH CHECK (auth.uid() = id);
+
+-- Auto-create a profile row when a new user signs up
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, email, username, joined_date)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'username', '@' || split_part(NEW.email, '@', 1) || '_fit'),
+    TO_CHAR(NOW(), 'Mon YYYY')
+  )
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Drop and recreate trigger
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+
+-- ─────────────────────────────────────────────
+-- 2. WORKOUT SESSIONS TABLE
+-- ─────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS public.workout_sessions (
+  id               UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id          UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  exercise_id      TEXT NOT NULL,
+  reps             INTEGER DEFAULT 0,
+  sets             INTEGER DEFAULT 0,
+  calories         INTEGER DEFAULT 0,
+  duration_seconds INTEGER DEFAULT 0,
+  accuracy         NUMERIC(4,1) DEFAULT 0,
+  created_at       TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.workout_sessions ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for workout_sessions
+DROP POLICY IF EXISTS "Users can view own sessions" ON public.workout_sessions;
+CREATE POLICY "Users can view own sessions"
+  ON public.workout_sessions FOR SELECT
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert own sessions" ON public.workout_sessions;
+CREATE POLICY "Users can insert own sessions"
+  ON public.workout_sessions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete own sessions" ON public.workout_sessions;
+CREATE POLICY "Users can delete own sessions"
+  ON public.workout_sessions FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Index for faster queries
+CREATE INDEX IF NOT EXISTS workout_sessions_user_id_idx ON public.workout_sessions(user_id);
+CREATE INDEX IF NOT EXISTS workout_sessions_created_at_idx ON public.workout_sessions(created_at DESC);

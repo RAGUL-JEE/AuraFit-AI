@@ -16,7 +16,7 @@ describe('AuraFit AI Dashboard E2E Tests', () => {
     options.addArguments('--window-size=1920,1080');
 
     driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
-    await driver.get('http://localhost:3000');
+    await driver.get('http://127.0.0.1:3000');
     
     // 1. Bypass Login Screen
     // Wait for email input (Vite might take a while to compile on the first request in CI)

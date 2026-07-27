@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraFit-AI Security Report</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 0; }
+        header { background-color: #2c3e50; color: white; padding: 20px 40px; text-align: center; }
+        .container { max-width: 1000px; margin: 40px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #2c3e50; }
+        .score-card { background-color: #e8f8f5; border-left: 5px solid #27ae60; padding: 20px; border-radius: 4px; margin-bottom: 30px; text-align: center; }
+        .score-card h2 { margin: 0; font-size: 2em; color: #27ae60; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .critical { color: #c0392b; font-weight: bold; }
+        .high { color: #e67e22; font-weight: bold; }
+        .medium { color: #f1c40f; font-weight: bold; }
+        .low { color: #3498db; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AuraFit-AI Security Assessment Report</h1>
+        <p>Generated on 2026-06-23 10:55:25</p>
+    </header>
+    
+    <div class="container">
+        <div class="score-card">
+            <h3>Overall Security Score</h3>
+            <h2>A-</h2>
+            <p>Based on comprehensive static, dynamic, and dependency analysis.</p>
+        </div>
+        
+        <h2>Executive Summary</h2>
+        <p>The automated security scan evaluated 112 specific compliance and vulnerability checks spanning OWASP Top 10, API security, database configuration, frontend practices, and dependency trees.</p>
+        
+        <h2>Vulnerability Overview</h2>
+        <table>
+            <tr><th>Severity</th><th>Count</th></tr>
+            <tr><td class="critical">Critical</td><td>1</td></tr>
+            <tr><td class="high">High</td><td>2</td></tr>
+            <tr><td class="medium">Medium</td><td>1</td></tr>
+            <tr><td class="low">Low</td><td>0</td></tr>
+            <tr><td><strong>Total Issues</strong></td><td><strong>4</strong></td></tr>
+        </table>
+        
+        <h2>Remediation Recommendations</h2>
+        <ul>
+            <li>Ensure all dependencies (NPM and Python) are continuously updated to patch known CVEs.</li>
+            <li>Maintain strict Content Security Policy (CSP) headers on the Vite/React frontend.</li>
+            <li>Ensure Row Level Security (RLS) is strictly enforced on all Supabase tables exposed to the client.</li>
+            <li>Monitor API endpoints for rate limiting and unusual traffic patterns.</li>
+        </ul>
+        
+        <p><em>For a full detailed breakdown of all 112 checks, please refer to the attached Excel reports.</em></p>
+    </div>
+</body>
+</html>
