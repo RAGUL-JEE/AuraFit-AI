@@ -1,0 +1,17 @@
+node_modules
+.git
+.gitignore
+*.md
+*.xlsx
+e2e
+automation
+appium_framework
+selenium_framework
+performance_testing
+load_tests
+security_framework
+python_e2e
+Mobile
+frontend/node_modules
+dist
+build
