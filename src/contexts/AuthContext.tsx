@@ -58,17 +58,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: data.email || '',
           username: data.name ? `@${data.name.replace(/\s+/g, '').toLowerCase()}_fit` : '',
         });
-      } else if (error && error.code === 'PGRST116') {
-        // User not found in public.users table (e.g. Google OAuth login)
-        // Auto-insert them using their auth metadata
+      } else {
+        // User not found in public.users table (e.g. first login or OAuth)
+        // Auto-upsert them using their auth metadata so a record is guaranteed in the database
         const metadata = currentUser.user_metadata || {};
         const fullName = metadata.full_name || metadata.name || currentUser.email?.split('@')[0] || 'User';
         
-        await supabase.from('users').insert({
+        await supabase.from('users').upsert({
           id: currentUser.id,
           name: fullName,
           email: currentUser.email,
-        });
+        }, { onConflict: 'id' });
 
         updateProfile({
           fullName: fullName,

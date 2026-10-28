@@ -1,0 +1,12 @@
+{
+  "include": [
+    ".",
+    "backend"
+  ],
+  "extraPaths": [
+    "C:/Users/ganes/AppData/Roaming/Python/Python312/site-packages",
+    "C:/Program Files/Python312/Lib/site-packages"
+  ],
+  "venvPath": ".",
+  "venv": "venv"
+}

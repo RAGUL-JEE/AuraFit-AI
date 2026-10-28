@@ -86,36 +86,75 @@ export function Login({ onLogin }: LoginProps) {
 
         if (error) throw error;
 
-        // Auto-insert into users table
+        // Check if user already exists (Supabase returns empty identities array when user already exists)
+        if (data.user && data.user.identities && data.user.identities.length === 0) {
+          throw new Error('An account with this email already exists. Please switch to "Sign In" or reset your password.');
+        }
+
+        // If email confirmation is enabled in Supabase, session is null until confirmed
+        if (data.user && !data.session) {
+          toast.success('Account created! Please check your email to verify before signing in.');
+          setAccountError({
+            message: 'Email Verification Required',
+            subMessage: 'We sent a verification link to your email. Please click the link to activate your account, or disable "Confirm email" in Supabase Auth settings to log in immediately.'
+          });
+          setIsSignUp(false);
+          return;
+        }
+
+        // Store / update user record in database
         if (data.user) {
-          const { error: dbError } = await supabase.from('users').insert({
+          const { error: dbError } = await supabase.from('users').upsert({
             id: data.user.id,
             name: formData.fullName,
             email: formData.email,
-          });
+          }, { onConflict: 'id' });
           if (dbError) {
-            console.warn('Failed to insert user into public.users table', dbError);
+            console.warn('Failed to upsert user into public.users table:', dbError);
           }
         }
 
         toast.success('Account created successfully!');
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
         });
 
         if (error) throw error;
+
+        // Ensure user record exists in database upon login
+        if (data.user) {
+          const userName = data.user.user_metadata?.full_name || data.user.user_metadata?.name || formData.email.split('@')[0];
+          const { error: dbError } = await supabase.from('users').upsert({
+            id: data.user.id,
+            name: userName,
+            email: data.user.email,
+          }, { onConflict: 'id' });
+          if (dbError) {
+            console.warn('Failed to upsert user record in database on login:', dbError);
+          }
+        }
+
         toast.success('Welcome back!');
       }
 
       onLogin();
     } catch (err: any) {
-      console.log(err);
-      console.error(err);
+      console.error('Auth error:', err);
+      let subMessage = err.message || 'An unexpected authentication error occurred.';
+      
+      if (subMessage.toLowerCase().includes('email not confirmed')) {
+        subMessage = 'Your email has not been confirmed yet. Please check your inbox for the confirmation email, or disable "Confirm email" in Supabase Dashboard (Authentication > Providers > Email).';
+      } else if (subMessage.toLowerCase().includes('invalid login credentials')) {
+        subMessage = 'Invalid email or password. Please check your credentials or create a new account.';
+      } else if (subMessage.toLowerCase().includes('database error saving new user')) {
+        subMessage = 'A database trigger or rate limit failed in Supabase. Please disable "Confirm email" in Supabase Dashboard (Authentication > Providers > Email) and run the SQL trigger fix.';
+      }
+
       setAccountError({
         message: 'Authentication Failed',
-        subMessage: err.message
+        subMessage: subMessage
       });
     } finally {
       setIsLoading(false);

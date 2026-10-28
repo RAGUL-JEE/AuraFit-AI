@@ -28,6 +28,54 @@ CREATE POLICY "Users can insert own data"
   ON public.users FOR INSERT 
   WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own data" ON public.users;
+CREATE POLICY "Users can update own data" 
+  ON public.users FOR UPDATE 
+  USING (auth.uid() = id);
+
+-- Trigger: Automatically insert into public.users and public.profiles whenever an auth.user is created
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  -- 1. Insert into public.users safely
+  BEGIN
+    INSERT INTO public.users (id, name, email, created_at)
+    VALUES (
+      NEW.id,
+      COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
+      NEW.email,
+      NOW()
+    )
+    ON CONFLICT (id) DO UPDATE
+    SET name = EXCLUDED.name, email = EXCLUDED.email;
+  EXCEPTION WHEN OTHERS THEN
+    -- Prevent trigger error from failing auth signup
+  END;
+
+  -- 2. Insert into public.profiles safely
+  BEGIN
+    INSERT INTO public.profiles (id, full_name, email, username, joined_date)
+    VALUES (
+      NEW.id,
+      COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
+      NEW.email,
+      COALESCE(NEW.raw_user_meta_data->>'username', '@' || split_part(NEW.email, '@', 1) || '_fit'),
+      TO_CHAR(NOW(), 'Mon YYYY')
+    )
+    ON CONFLICT (id) DO NOTHING;
+  EXCEPTION WHEN OTHERS THEN
+    -- Prevent trigger error from failing auth signup
+  END;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 
 -- ─────────────────────────────────────────────
 -- 2. WORKOUTS TABLE
